@@ -24,6 +24,7 @@ class ReminderListFragment : BaseFragment() {
     //use Koin to retrieve the ViewModel instance
     private val loginViewModel:LoginViewModel by activityViewModels()
     override val _viewModel: RemindersListViewModel by viewModel()
+
     private lateinit var binding: FragmentRemindersBinding
 
     private val TAG = this.javaClass.simpleName

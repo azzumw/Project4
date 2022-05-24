@@ -44,9 +44,10 @@ class AuthenticationActivity : AppCompatActivity() {
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK) {
                 // User successfully signed in
-//                    val intent = Intent(this,RemindersActivity::class.java)
                 Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}!")
                 Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.photoUrl}!")
+                val intent = Intent(this,RemindersActivity::class.java)
+                startActivity(intent)
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
