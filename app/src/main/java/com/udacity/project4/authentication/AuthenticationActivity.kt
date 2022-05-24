@@ -10,6 +10,7 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
+import com.udacity.project4.locationreminders.RemindersActivity
 
 const val SIGN_IN_REQUEST_CODE = 1000
 /**
@@ -43,6 +44,7 @@ class AuthenticationActivity : AppCompatActivity() {
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK) {
                 // User successfully signed in
+//                    val intent = Intent(this,RemindersActivity::class.java)
                 Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}!")
                 Log.i(TAG, "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.photoUrl}!")
             } else {
