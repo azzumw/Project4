@@ -1,13 +1,12 @@
 package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
 
 
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -24,6 +23,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback{
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map:GoogleMap
 
+    private val TAG = this.javaClass.simpleName
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -37,11 +37,11 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback{
         setDisplayHomeAsUpEnabled(true)
 
 //        TODO: add the map setup implementation
-//        val mapFragment = activity?.supportFragmentManager
-//            ?.findFragmentById(R.id.map) as SupportMapFragment
-//        mapFragment.getMapAsync(this)
+
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+
 
 //        TODO: zoom to the user location after taking his permission
 //        TODO: add style to the map
@@ -93,6 +93,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback{
         map.addMarker(MarkerOptions().position(homeLatLng).title("Home"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
 
+        setMapStyle(map)
         setMapLongClick(map)
         setPoiClick(map)
 
@@ -120,6 +121,25 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback{
                 showInfoWindow()
             }
 
+        }
+    }
+
+    private fun setMapStyle(googleMap: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = googleMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    context,
+                    R.raw.map_style
+                )
+            )
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        }catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
         }
     }
 }
