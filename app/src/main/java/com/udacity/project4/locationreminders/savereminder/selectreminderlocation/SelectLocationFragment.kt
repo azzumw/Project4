@@ -1,33 +1,21 @@
 package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
 
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.IntentSender
-import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
-import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
+import java.util.*
 
 class SelectLocationFragment : BaseFragment(),OnMapReadyCallback{
 
@@ -100,10 +88,38 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback{
     override fun onMapReady(gMap: GoogleMap) {
         map = gMap
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        map.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        map.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val zoomLevel = 18f
+        val homeLatLng = LatLng(51.529744, -0.088593)
+        map.addMarker(MarkerOptions().position(homeLatLng).title("Home"))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
+
+        setMapLongClick(map)
+        setPoiClick(map)
+
     }
 
+    private fun setMapLongClick(googleMap: GoogleMap){
 
+        googleMap.setOnMapLongClickListener {
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                it.latitude,
+                it.longitude
+            )
+            googleMap.addMarker(MarkerOptions().position(it).
+            title(getString(R.string.dropped_pin)).snippet(snippet))
+        }
+    }
+
+    private fun setPoiClick(googleMap: GoogleMap){
+        googleMap.setOnPoiClickListener {
+            googleMap.addMarker(
+                MarkerOptions().position(it.latLng).title(it.name)
+            ).apply {
+                showInfoWindow()
+            }
+
+        }
+    }
 }
