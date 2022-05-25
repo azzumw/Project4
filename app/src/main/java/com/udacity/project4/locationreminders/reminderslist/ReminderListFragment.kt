@@ -107,7 +107,6 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-//                TODO: add the logout implementation
                 //log user out, nav to Login screen
                 AuthUI.getInstance().signOut(requireContext())
                 return true
