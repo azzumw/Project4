@@ -9,9 +9,11 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
@@ -32,7 +34,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
     private val REQUEST_PERMISSION_LOCATION = 1
-    private lateinit var myLocation: Location
+    private var isPoiSelected = false
+
+    private lateinit var selectedPoi: PointOfInterest
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val TAG = this.javaClass.simpleName
@@ -50,53 +54,47 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-//        TODO: add the map setup implementation
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
 
 //        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
-//        TODO: put a marker to location that the user selected
 
 
 //        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
 
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.saveBtn.setOnClickListener {
+
+            if (isPoiSelected){
+                onLocationSelected()
+            }else{
+                Toast.makeText(context,getString(R.string.select_poi),Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+        _viewModel.latitude.value = selectedPoi.latLng.latitude
+        _viewModel.longitude.value = selectedPoi.latLng.longitude
+        _viewModel.isPoiSelected.value = true
+        _viewModel.selectedPOI.value = selectedPoi
+        _viewModel.reminderSelectedLocationStr.value = selectedPoi.name
+
+        //         TODO: send back the selected location details to the view model
+        //         TODO: and navigate back to the previous fragment to save the reminder and add the geofence
+        findNavController().apply {
+            navigate(R.id.saveReminderFragment)
+            popBackStack(R.id.selectLocationFragment,true)
+        }
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.map_options, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.normal_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_NORMAL
-            true
-        }
-        R.id.hybrid_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_HYBRID
-            true
-        }
-        R.id.satellite_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
-            true
-        }
-        R.id.terrain_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(gMap: GoogleMap) {
@@ -108,42 +106,41 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         val homeLat = 51.529744
         val homeLng = -0.088593
-        val homeLatLng = LatLng(homeLat,homeLng )
+        val homeLatLng = LatLng(homeLat, homeLng)
 
 //        val currentLatLng = LatLng(currentLatLocation, currentLngLocation)
 
         map.addMarker(MarkerOptions().position(homeLatLng).title("You're here"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
 
-
-
-
-
         setMapStyle(map)
-        setMapLongClick(map)
+//        setMapLongClick(map)
         setPoiClick(map)
 
-        showSnackBar("Select a POI to set a reminder")
+        showSnackBar(getString(R.string.select_poi))
+
 
     }
 
-    private fun setMapLongClick(googleMap: GoogleMap) {
-
-        googleMap.setOnMapLongClickListener {
-            val snippet = String.format(
-                Locale.getDefault(),
-                "Lat: %1$.5f, Long: %2$.5f",
-                it.latitude,
-                it.longitude
-            )
-            googleMap.addMarker(
-                MarkerOptions().position(it).title(getString(R.string.dropped_pin)).snippet(snippet)
-            )
-        }
-    }
+//    private fun setMapLongClick(googleMap: GoogleMap) {
+//
+//        googleMap.setOnMapLongClickListener {
+//            val snippet = String.format(
+//                Locale.getDefault(),
+//                "Lat: %1$.5f, Long: %2$.5f",
+//                it.latitude,
+//                it.longitude
+//            )
+//            googleMap.addMarker(
+//                MarkerOptions().position(it).title(getString(R.string.dropped_pin)).snippet(snippet)
+//            )
+//        }
+//    }
 
     private fun setPoiClick(googleMap: GoogleMap) {
+
         googleMap.setOnPoiClickListener {
+            googleMap.clear()
             googleMap.addMarker(
                 MarkerOptions().position(it.latLng).title(it.name)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
@@ -151,6 +148,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 showInfoWindow()
             }
 
+            selectedPoi = it
+            isPoiSelected = true
         }
     }
 
@@ -212,5 +211,29 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 enableMyLocation()
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.map_options, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.normal_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_NORMAL
+            true
+        }
+        R.id.hybrid_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_HYBRID
+            true
+        }
+        R.id.satellite_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            true
+        }
+        R.id.terrain_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }

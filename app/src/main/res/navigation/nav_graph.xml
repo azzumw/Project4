@@ -10,7 +10,8 @@
         android:label="ReminderListFragment">
         <action
             android:id="@+id/to_save_reminder"
-            app:destination="@id/saveReminderFragment" />
+            app:destination="@id/saveReminderFragment"
+            app:launchSingleTop="false" />
     </fragment>
     <activity
         android:id="@+id/mainActivity"
@@ -22,14 +23,23 @@
         android:label="Add Reminder">
         <action
             android:id="@+id/action_saveReminderFragment_to_reminderListFragment"
-            app:destination="@id/reminderListFragment" />
+            app:destination="@id/reminderListFragment"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_saveReminderFragment_to_selectLocationFragment"
-            app:destination="@id/selectLocationFragment" />
+            app:destination="@id/selectLocationFragment"
+            app:launchSingleTop="false" />
     </fragment>
     <fragment
         android:id="@+id/selectLocationFragment"
         android:name="com.udacity.project4.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment"
-        android:label="Select Location" />
+        android:label="Select Location" >
+        <action
+            android:id="@+id/action_selectLocationFragment_to_saveReminderFragment2"
+            app:destination="@id/saveReminderFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/selectLocationFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>
