@@ -18,6 +18,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -26,6 +28,7 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.*
+
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -80,6 +83,31 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    private fun getDeviceLocation() {
+        try {
+            if (isPermissionGranted()) {
+                val locationResult: Task<Location> = fusedLocationClient.lastLocation
+                locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+                    if (task.isSuccessful) {
+                        // Set the map's camera position to the current location of the device.
+                        val location: Location? = task.result
+                        val currentLatLng = LatLng(
+                            location!!.latitude,
+                            location.longitude
+                        )
+                        val update = CameraUpdateFactory.newLatLngZoom(
+                            currentLatLng,
+                            18f
+                        )
+                        map.moveCamera(update)
+                    }
+                })
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message!!)
+        }
+    }
+
     private fun onLocationSelected() {
         _viewModel.latitude.value = selectedPoi.latLng.latitude
         _viewModel.longitude.value = selectedPoi.latLng.longitude
@@ -102,25 +130,26 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         enableMyLocation()
         // Add a marker in Sydney and move the camera
-        val zoomLevel = 18f
+        val zoomLevel = 16f
 
         val homeLat = 51.529744
         val homeLng = -0.088593
         val homeLatLng = LatLng(homeLat, homeLng)
 
 //        val currentLatLng = LatLng(currentLatLocation, currentLngLocation)
-
-        map.addMarker(MarkerOptions().position(homeLatLng).title("You're here"))
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
-
+//        map.addMarker(MarkerOptions().position(homeLatLng).title("You're here"))
+//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
+        map.moveCamera(CameraUpdateFactory.zoomBy(zoomLevel))
         setMapStyle(map)
 //        setMapLongClick(map)
         setPoiClick(map)
 
+        getDeviceLocation()
+
         showSnackBar(getString(R.string.select_poi))
-
-
     }
+
+
 
 //    private fun setMapLongClick(googleMap: GoogleMap) {
 //
