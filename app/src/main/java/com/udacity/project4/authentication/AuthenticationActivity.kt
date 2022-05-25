@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
@@ -35,6 +36,8 @@ class AuthenticationActivity : AppCompatActivity() {
         }
     }
 
+
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SIGN_IN_REQUEST_CODE) {
@@ -50,6 +53,7 @@ class AuthenticationActivity : AppCompatActivity() {
                     "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.photoUrl}!"
                 )
                 val intent = Intent(this, RemindersActivity::class.java)
+
                 startActivity(intent)
             } else {
                 // Sign in failed. If response is null the user canceled the

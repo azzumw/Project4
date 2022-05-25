@@ -39,6 +39,7 @@ class ReminderListFragment : BaseFragment() {
                 // so navigate them to the authentication activity
                 LoginViewModel.AuthenticationState.UNAUTHENTICATED -> {
                     val intent = Intent(context,AuthenticationActivity::class.java)
+                    activity?.finish()
                     startActivity(intent)
                 }
 
