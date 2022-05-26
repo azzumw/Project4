@@ -80,6 +80,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+
     private fun onLocationSelected() {
         _viewModel.latitude.value = selectedPoi.latLng.latitude
         _viewModel.longitude.value = selectedPoi.latLng.longitude
@@ -97,14 +98,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onMapReady(gMap: GoogleMap) {
         map = gMap
 
-        enableMyLocation()
-
         setMapStyle(map)
         setPoiClick(map)
 
-//        getDeviceLocation()
-
         showSnackBar(getString(R.string.select_poi))
+
+        enableMyLocation()
     }
 
 
@@ -194,6 +193,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
+//            map.animateCamera(CameraUpdateFactory.zoomBy(16f))
 
             val locationResult: Task<Location> = fusedLocationClient.lastLocation
             locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->

@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
@@ -35,7 +36,7 @@ class RemindersActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-//        checkPermissionsAndStartGeofencing()
+        checkPermissionsAndStartGeofencing()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -62,7 +63,7 @@ class RemindersActivity : AppCompatActivity() {
                     PackageManager.PERMISSION_DENIED))
         {
             Snackbar.make(
-                R.layout.activity_reminders as View,
+                findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
                 R.string.permission_denied_explanation,
                 Snackbar.LENGTH_INDEFINITE
             )
