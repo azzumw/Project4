@@ -3,15 +3,18 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -189,11 +192,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    private fun locationEnabled() {
+        val locationManager =  requireActivity().applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) // Return a boolean
+    }
+
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
-//            map.animateCamera(CameraUpdateFactory.zoomBy(16f))
 
             val locationResult: Task<Location> = fusedLocationClient.lastLocation
             locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
