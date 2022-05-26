@@ -41,13 +41,14 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         // send a notification to the user when he enters the geofence area
         //TODO call @sendNotification
 
+
         if (intent.action == ACTION_GEOFENCE_EVENT){
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
             if (geofencingEvent.hasError()) {
                 val errorMessage = GeofenceStatusCodes
                     .getStatusCodeString(geofencingEvent.errorCode)
-                Log.e(TAG, errorMessage)
+                Log.e("JobIntentKt", errorMessage)
                 return
             }
 
@@ -57,22 +58,22 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
             if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER){
                 Log.e("JobIntentKt", "Geofence entered")
 
-                val fenceId = when {
-                    geofencingEvent.triggeringGeofences.isNotEmpty() ->
-                        geofencingEvent.triggeringGeofences[0].requestId
-                    else -> {
-                        Log.e("JobIntentKt", "No Geofence Trigger Found! Abort mission!")
-                        return
-                    }
-                }
+                sendNotification(geofencingEvent.triggeringGeofences)
 
 
+//                val fenceId = when {
+//                    geofencingEvent.triggeringGeofences.isNotEmpty() ->
+//                        geofencingEvent.triggeringGeofences[0].requestId
+//                    else -> {
+//                        Log.e("JobIntentKt", "No Geofence Trigger Found! Abort mission!")
+//                        return
+//                    }
+//                }
 
             }
+        }else{
+            Log.e("JObIntentKt","Error matching intent")
         }
-
-
-        sendNotification()
     }
 
     //TODO: get the request id of the current geofence

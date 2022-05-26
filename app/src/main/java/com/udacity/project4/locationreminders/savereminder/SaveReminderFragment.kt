@@ -38,6 +38,7 @@ class SaveReminderFragment : BaseFragment() {
 
     //access the location APIs
     private lateinit var geofencingClient: GeofencingClient
+    private val geofenceList = mutableListOf<Geofence>()
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
@@ -104,9 +105,12 @@ class SaveReminderFragment : BaseFragment() {
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                 .build()
 
+            _viewModel.addGeofenceToSet(geofence)
+
+            //create geofence request
             val geofencingRequest = GeofencingRequest.Builder()
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .addGeofence(geofence)
+                .addGeofences(_viewModel.getGeofenceSetAsList())
                 .build()
 
             addGeoFenceRequest(geofencingRequest,geofence)
@@ -122,14 +126,6 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
-    private fun createSnack(string: String){
-        Snackbar.make(binding.root,string,Snackbar.LENGTH_SHORT).show()
-    }
-
-    private fun createToast(string: String){
-        Toast.makeText(activity?.application?.applicationContext,string,Toast.LENGTH_SHORT).show()
-    }
-
     @SuppressLint("MissingPermission")
     private fun addGeoFenceRequest(geofencingRequest:GeofencingRequest,geofence: Geofence){
 
@@ -137,17 +133,11 @@ class SaveReminderFragment : BaseFragment() {
             addOnCompleteListener {
                 geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                     addOnSuccessListener {
-//                       createToast("GEO!")
-//                        Toast.makeText(context, "ADDED",
-//                            Toast.LENGTH_SHORT)
-//                            .show()
+
                         Log.e("Geofence added", geofence.requestId)
-//                        viewModel.geofenceActivated()
                     }
                     addOnFailureListener {
                         Log.e("Could not add Geofence", geofence.requestId)
-//                        Toast.makeText(context, "NOT ADDED",
-//                            Toast.LENGTH_SHORT).show()
                         if ((it.message != null)) {
                             Log.w(TAG, it.message.toString())
                         }
