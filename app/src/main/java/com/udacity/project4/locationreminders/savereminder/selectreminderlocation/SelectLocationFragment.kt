@@ -34,15 +34,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
-    private lateinit var binding: FragmentSelectLocationBinding
-    private lateinit var map: GoogleMap
-    private val REQUEST_PERMISSION_LOCATION = 1
-    private var isPoiSelected = false
 
+    private lateinit var binding: FragmentSelectLocationBinding
+
+    private lateinit var map: GoogleMap
+    private var isPoiSelected = false
     private lateinit var selectedPoi: PointOfInterest
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private val REQUEST_PERMISSION_LOCATION = 1
+
     private val TAG = this.javaClass.simpleName
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -57,15 +61,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-
-//        TODO: zoom to the user location after taking his permission
-
-
-//        TODO: call this function after the user confirms on the selected location
 
         return binding.root
     }
@@ -80,6 +77,84 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }else{
                 Toast.makeText(context,getString(R.string.select_poi),Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun onLocationSelected() {
+        _viewModel.latitude.value = selectedPoi.latLng.latitude
+        _viewModel.longitude.value = selectedPoi.latLng.longitude
+        _viewModel.isPoiSelected.value = true
+        _viewModel.selectedPOI.value = selectedPoi
+        _viewModel.reminderSelectedLocationStr.value = selectedPoi.name
+
+        findNavController().apply {
+            navigate(R.id.saveReminderFragment)
+            popBackStack(R.id.selectLocationFragment,true)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(gMap: GoogleMap) {
+        map = gMap
+
+        enableMyLocation()
+
+        setMapStyle(map)
+        setPoiClick(map)
+
+//        getDeviceLocation()
+
+        showSnackBar(getString(R.string.select_poi))
+    }
+
+
+    private fun setPoiClick(googleMap: GoogleMap) {
+
+        googleMap.setOnPoiClickListener {
+            googleMap.clear()
+
+            googleMap.addMarker(
+                MarkerOptions().position(it.latLng).title(it.name)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+            ).apply {
+                showInfoWindow()
+            }
+
+            selectedPoi = it
+            isPoiSelected = true
+        }
+    }
+
+    private fun showSnackBar(text: String) {
+        //work on the position of Snack bar
+        val snackbar = Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT)
+        snackbar.show()
+        snackbar.isGestureInsetBottomIgnored = true
+
+//        val snack: Snackbar = Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
+//        val view = snack.view
+//        val params = binding.root.layoutParams as LinearLayout.LayoutParams
+//        params.gravity = Gravity.TOP
+//        view.layoutParams = params
+//        snack.show()
+    }
+
+    private fun setMapStyle(googleMap: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = googleMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    context,
+                    R.raw.map_style
+                )
+            )
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
         }
     }
 
@@ -108,104 +183,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    private fun onLocationSelected() {
-        _viewModel.latitude.value = selectedPoi.latLng.latitude
-        _viewModel.longitude.value = selectedPoi.latLng.longitude
-        _viewModel.isPoiSelected.value = true
-        _viewModel.selectedPOI.value = selectedPoi
-        _viewModel.reminderSelectedLocationStr.value = selectedPoi.name
-
-        //         TODO: send back the selected location details to the view model
-        //         TODO: and navigate back to the previous fragment to save the reminder and add the geofence
-        findNavController().apply {
-            navigate(R.id.saveReminderFragment)
-            popBackStack(R.id.selectLocationFragment,true)
-        }
-    }
-
-
-    @SuppressLint("MissingPermission")
-    override fun onMapReady(gMap: GoogleMap) {
-        map = gMap
-
-        enableMyLocation()
-        // Add a marker in Sydney and move the camera
-        val zoomLevel = 16f
-
-        val homeLat = 51.529744
-        val homeLng = -0.088593
-        val homeLatLng = LatLng(homeLat, homeLng)
-
-//        val currentLatLng = LatLng(currentLatLocation, currentLngLocation)
-//        map.addMarker(MarkerOptions().position(homeLatLng).title("You're here"))
-//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
-        map.moveCamera(CameraUpdateFactory.zoomBy(zoomLevel))
-        setMapStyle(map)
-//        setMapLongClick(map)
-        setPoiClick(map)
-
-        getDeviceLocation()
-
-        showSnackBar(getString(R.string.select_poi))
-    }
-
-
-
-//    private fun setMapLongClick(googleMap: GoogleMap) {
-//
-//        googleMap.setOnMapLongClickListener {
-//            val snippet = String.format(
-//                Locale.getDefault(),
-//                "Lat: %1$.5f, Long: %2$.5f",
-//                it.latitude,
-//                it.longitude
-//            )
-//            googleMap.addMarker(
-//                MarkerOptions().position(it).title(getString(R.string.dropped_pin)).snippet(snippet)
-//            )
-//        }
-//    }
-
-    private fun setPoiClick(googleMap: GoogleMap) {
-
-        googleMap.setOnPoiClickListener {
-            googleMap.clear()
-            googleMap.addMarker(
-                MarkerOptions().position(it.latLng).title(it.name)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-            ).apply {
-                showInfoWindow()
-            }
-
-            selectedPoi = it
-            isPoiSelected = true
-        }
-    }
-
-    private fun showSnackBar(text: String) {
-        //work on the position of Snack bar
-        Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT)
-    }
-
-    private fun setMapStyle(googleMap: GoogleMap) {
-        try {
-            // Customize the styling of the base map using a JSON object defined
-            // in a raw resource file.
-            val success = googleMap.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(
-                    context,
-                    R.raw.map_style
-                )
-            )
-
-            if (!success) {
-                Log.e(TAG, "Style parsing failed.")
-            }
-        } catch (e: Resources.NotFoundException) {
-            Log.e(TAG, "Can't find style. Error: ", e)
-        }
-    }
-
     private fun isPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             requireContext(),
@@ -217,6 +194,24 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
+
+            val locationResult: Task<Location> = fusedLocationClient.lastLocation
+            locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+                if (task.isSuccessful) {
+                    // Set the map's camera position to the current location of the device.
+                    val location: Location? = task.result
+                    val currentLatLng = LatLng(
+                        location!!.latitude,
+                        location.longitude
+                    )
+                    val update = CameraUpdateFactory.newLatLngZoom(
+                        currentLatLng,
+                        18f
+                    )
+                    map.moveCamera(update)
+                }
+            })
+
 
         } else {
             ActivityCompat.requestPermissions(
@@ -265,4 +260,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
         else -> super.onOptionsItemSelected(item)
     }
+
+    //    private fun setMapLongClick(googleMap: GoogleMap) {
+//
+//        googleMap.setOnMapLongClickListener {
+//            val snippet = String.format(
+//                Locale.getDefault(),
+//                "Lat: %1$.5f, Long: %2$.5f",
+//                it.latitude,
+//                it.longitude
+//            )
+//            googleMap.addMarker(
+//                MarkerOptions().position(it).title(getString(R.string.dropped_pin)).snippet(snippet)
+//            )
+//        }
+//    }
 }
