@@ -88,6 +88,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         _viewModel.latitude.value = selectedPoi.latLng.latitude
         _viewModel.longitude.value = selectedPoi.latLng.longitude
         _viewModel.isPoiSelected.value = true
+        _viewModel.reminderTitle.value = selectedPoi.name
         _viewModel.selectedPOI.value = selectedPoi
         _viewModel.reminderSelectedLocationStr.value = selectedPoi.name
 

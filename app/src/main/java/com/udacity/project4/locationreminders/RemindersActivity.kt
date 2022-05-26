@@ -45,8 +45,6 @@ class RemindersActivity : AppCompatActivity() {
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
             checkDeviceLocationSettingsAndStartGeofence(false)
         }
-        // TODO: Step 7 add code to check that the user turned on their device location and ask
-        //  again if they did not
     }
 
     override fun onStart() {
