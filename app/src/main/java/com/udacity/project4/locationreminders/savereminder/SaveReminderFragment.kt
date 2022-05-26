@@ -14,6 +14,7 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -121,6 +122,13 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
+    private fun createSnack(string: String){
+        Snackbar.make(binding.root,string,Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun createToast(string: String){
+        Toast.makeText(activity?.application?.applicationContext,string,Toast.LENGTH_SHORT).show()
+    }
 
     @SuppressLint("MissingPermission")
     private fun addGeoFenceRequest(geofencingRequest:GeofencingRequest,geofence: Geofence){
@@ -129,14 +137,15 @@ class SaveReminderFragment : BaseFragment() {
             addOnCompleteListener {
                 geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                     addOnSuccessListener {
-                        Toast.makeText(activity?.applicationContext, "ADDED",
-                            Toast.LENGTH_SHORT)
-                            .show()
-                        Log.e("Add Geofence", geofence.requestId)
+//                       createToast("GEO!")
+//                        Toast.makeText(context, "ADDED",
+//                            Toast.LENGTH_SHORT)
+//                            .show()
+                        Log.e("Geofence added", geofence.requestId)
 //                        viewModel.geofenceActivated()
                     }
                     addOnFailureListener {
-                        Log.e("Not added Geofence", geofence.requestId)
+                        Log.e("Could not add Geofence", geofence.requestId)
 //                        Toast.makeText(context, "NOT ADDED",
 //                            Toast.LENGTH_SHORT).show()
                         if ((it.message != null)) {
