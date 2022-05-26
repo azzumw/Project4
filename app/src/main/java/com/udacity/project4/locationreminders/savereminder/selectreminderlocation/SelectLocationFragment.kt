@@ -215,7 +215,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         currentLatLng,
                         18f
                     )
-                    map.moveCamera(update)
+                    map.animateCamera(update)
                 }
             })
 
