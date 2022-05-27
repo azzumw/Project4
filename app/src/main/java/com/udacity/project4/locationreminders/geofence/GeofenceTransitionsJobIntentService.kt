@@ -18,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
-     val _viewModel: SaveReminderViewModel by inject()
+    val _viewModel: SaveReminderViewModel by inject()
 
     private var coroutineJob: Job = Job()
     override val coroutineContext: CoroutineContext
@@ -40,7 +40,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         val tag = "JobOnHandle"
         if (intent.action == ACTION_GEOFENCE_EVENT) {
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
-            Log.e("$tag: trig geos",geofencingEvent.triggeringGeofences.size.toString())
+            Log.e("$tag: trig geos", geofencingEvent.triggeringGeofences.size.toString())
 
             if (geofencingEvent.hasError()) {
                 val errorMessage = GeofenceStatusCodes
@@ -52,10 +52,11 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
             // Get the transition type.
             val geofenceTransition = geofencingEvent.geofenceTransition
 
+
             if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
                 Log.e("JobIntentKt", "Geofence entered")
-                for(i in geofencingEvent.triggeringGeofences){
-                    Log.e("JobIntentKt",i.toString())
+                for (i in geofencingEvent.triggeringGeofences) {
+                    Log.e("JobIntentKt", i.toString())
                 }
 
                 sendNotification(geofencingEvent.triggeringGeofences)
@@ -68,13 +69,11 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
 
+        val remindersLocalRepository: ReminderDataSource by inject()
+
         val currentGeofence = triggeringGeofences[0]
         val requestId = currentGeofence.requestId
 
-        //Get the local repository instance
-//        val remindersLocalRepository: RemindersLocalRepository by inject()
-        val remindersLocalRepository: ReminderDataSource by inject()
-//        Interaction to the repository has to be through a coroutine scope
         CoroutineScope(coroutineContext).launch(SupervisorJob()) {
             //get the reminder with the request id
             val result = remindersLocalRepository.getReminder(requestId)
@@ -93,9 +92,16 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                 )
 
                 remindersLocalRepository.deleteReminder(reminderDTO.id)
-                _viewModel.geofenceSet.remove(currentGeofence)
+//                _viewModel.geofenceSet.remove(currentGeofence)
             }
+
         }
+
+//        val currentGeofence = triggeringGeofences[0]
+//        val requestId = currentGeofence.requestId
+
+        //Get the local repository instance
+//        val remindersLocalRepository: RemindersLocalRepository by inject()
 
 
     }

@@ -103,13 +103,13 @@ class SaveReminderFragment : BaseFragment() {
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                 .build()
 
-            _viewModel.addGeofenceToSet(geofence)
+//            _viewModel.addGeofenceToSet(geofence)
 
             //create geofence request
             val geofencingRequest = GeofencingRequest.Builder()
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-//                .addGeofences(geofence)
-                .addGeofences(_viewModel.getGeofenceSetAsList())
+                .addGeofence(geofence)
+//                .addGeofences(_viewModel.getGeofenceSetAsList())
                 .build()
 
             addGeoFenceRequest(geofencingRequest, geofence)
