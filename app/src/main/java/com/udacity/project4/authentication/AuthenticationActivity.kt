@@ -76,8 +76,15 @@ class AuthenticationActivity : AppCompatActivity() {
         )
 
         startActivityForResult(
-            AuthUI.getInstance().createSignInIntentBuilder()
-                .setAvailableProviders(providers).build(), SIGN_IN_REQUEST_CODE
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(),
+            SIGN_IN_REQUEST_CODE
         )
+
+//        startActivityForResult(
+//            AuthUI.getInstance().createSignInIntentBuilder()
+//                .setAvailableProviders(providers).build(), SIGN_IN_REQUEST_CODE )
     }
 }

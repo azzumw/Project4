@@ -108,19 +108,11 @@ class SaveReminderFragment : BaseFragment() {
             //create geofence request
             val geofencingRequest = GeofencingRequest.Builder()
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+//                .addGeofences(geofence)
                 .addGeofences(_viewModel.getGeofenceSetAsList())
                 .build()
 
             addGeoFenceRequest(geofencingRequest, geofence)
-
-//            geofencingClient?.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
-//                addOnSuccessListener {
-//
-//                }
-//                addOnFailureListener {
-//
-//                }
-//            }
         }
     }
 

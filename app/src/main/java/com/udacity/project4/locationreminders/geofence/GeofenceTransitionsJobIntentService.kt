@@ -10,6 +10,7 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment.Companion.ACTION_GEOFENCE_EVENT
+import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.sendNotification
 import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
@@ -17,8 +18,8 @@ import kotlin.coroutines.CoroutineContext
 
 class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
-    private lateinit var geofencingClient: GeofencingClient
-    private lateinit var context:Context
+     val _viewModel: SaveReminderViewModel by inject()
+
     private var coroutineJob: Job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + coroutineJob
@@ -34,14 +35,12 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         }
     }
 
-    fun setContext(c: Context){
-        context = c
-        geofencingClient = LocationServices.getGeofencingClient(context)
-    }
 
     override fun onHandleWork(intent: Intent) {
+        val tag = "JobOnHandle"
         if (intent.action == ACTION_GEOFENCE_EVENT) {
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
+            Log.e("$tag: trig geos",geofencingEvent.triggeringGeofences.size.toString())
 
             if (geofencingEvent.hasError()) {
                 val errorMessage = GeofenceStatusCodes
@@ -55,6 +54,9 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
             if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
                 Log.e("JobIntentKt", "Geofence entered")
+                for(i in geofencingEvent.triggeringGeofences){
+                    Log.e("JobIntentKt",i.toString())
+                }
 
                 sendNotification(geofencingEvent.triggeringGeofences)
 
@@ -65,7 +67,9 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     }
 
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
-        val requestId = triggeringGeofences[0].requestId
+
+        val currentGeofence = triggeringGeofences[0]
+        val requestId = currentGeofence.requestId
 
         //Get the local repository instance
 //        val remindersLocalRepository: RemindersLocalRepository by inject()
@@ -89,6 +93,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                 )
 
                 remindersLocalRepository.deleteReminder(reminderDTO.id)
+                _viewModel.geofenceSet.remove(currentGeofence)
             }
         }
 
