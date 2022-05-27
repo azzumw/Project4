@@ -26,7 +26,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
 
     val longitude = MutableLiveData<Double>()
 
-    val geofencesList = mutableListOf<Geofence>()
     val geofenceSet = mutableSetOf<Geofence>()
 
     /**
@@ -87,10 +86,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             return false
         }
         return true
-    }
-
-    fun addGeofence(geofence: Geofence){
-        geofencesList.add(geofence)
     }
 
     fun addGeofenceToSet(geofence: Geofence){

@@ -11,23 +11,77 @@
     </data>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
+        android:id="@+id/root"
         android:orientation="vertical"
-        tools:context=".locationreminders.ReminderDescriptionActivity">
-        <!--TODO: add the design of the reminder details-->
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Reminder Details"
-            android:textSize="@dimen/text_size_large"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="16dp"
+            tools:context=".locationreminders.ReminderDescriptionActivity">
+            <!--TODO: add the design of the reminder details-->
 
+            <TextView
+                android:id="@+id/reminderHeader_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:hint="Reminder"
+                android:textStyle="bold"
+                android:layout_margin="@dimen/margin_normal"
+                android:text="@{reminderDataItem.title}"
+                android:textSize="@dimen/text_size_large"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/enteredLocation_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="@dimen/text_size_medium"
+                tools:text="You are now at this location."
+                android:text="@{@string/entered_location_string(reminderDataItem.location)}"/>
+
+            <TextView
+                android:id="@+id/reminderTitle_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="@dimen/text_size_medium"
+                tools:text="Don't forget to..."
+                android:text="@{@string/reminder_title_string(reminderDataItem.title)}"/>
+
+            <TextView
+                android:id="@+id/description_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="6"
+                android:layout_marginTop="8dp"
+                android:text="@{@string/description_string(reminderDataItem.description)}"/>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/framelayout"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/okay_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_check_24"
+                android:layout_margin="@dimen/margin_normal"
+                android:layout_gravity="end|bottom"/>
+        </FrameLayout>
     </LinearLayout>
+
 </layout>

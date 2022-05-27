@@ -8,13 +8,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -32,13 +30,13 @@ class SaveReminderFragment : BaseFragment() {
         internal const val ACTION_GEOFENCE_EVENT =
             "SaveReminderFragment.project4.action.ACTION_GEOFENCE_EVENT"
     }
+
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
 
     //access the location APIs
     private lateinit var geofencingClient: GeofencingClient
-    private val geofenceList = mutableListOf<Geofence>()
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
@@ -78,21 +76,21 @@ class SaveReminderFragment : BaseFragment() {
         binding.saveReminder.setOnClickListener {
 
 
-                val title = _viewModel.reminderTitle.value
-                val description = _viewModel.reminderDescription.value
-                val location = _viewModel.reminderSelectedLocationStr.value
-                val latitude = _viewModel.latitude.value!!
-                val longitude = _viewModel.longitude.value!!
+            val title = _viewModel.reminderTitle.value
+            val description = _viewModel.reminderDescription.value
+            val location = _viewModel.reminderSelectedLocationStr.value
+            val latitude = _viewModel.latitude.value!!
+            val longitude = _viewModel.longitude.value!!
 
-            val reminderDataItem = ReminderDataItem(title, description = description,
+            val reminderDataItem = ReminderDataItem(
+                title, description = description,
                 location = location,
                 latitude = latitude,
-                longitude = longitude)
+                longitude = longitude
+            )
 
             _viewModel.validateAndSaveReminder(reminderDataItem)
 
-//            TODO: use the user entered reminder details to:
-//             1) add a geofencing request
             //create a geofence
             val geofence = Geofence.Builder()
                 .setRequestId(reminderDataItem.id)
@@ -113,7 +111,7 @@ class SaveReminderFragment : BaseFragment() {
                 .addGeofences(_viewModel.getGeofenceSetAsList())
                 .build()
 
-            addGeoFenceRequest(geofencingRequest,geofence)
+            addGeoFenceRequest(geofencingRequest, geofence)
 
 //            geofencingClient?.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
 //                addOnSuccessListener {
@@ -127,7 +125,7 @@ class SaveReminderFragment : BaseFragment() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun addGeoFenceRequest(geofencingRequest:GeofencingRequest,geofence: Geofence){
+    private fun addGeoFenceRequest(geofencingRequest: GeofencingRequest, geofence: Geofence) {
 
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnCompleteListener {
