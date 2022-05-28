@@ -18,6 +18,8 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
+import com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService
+import com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService.Companion.GeofencingConstants.GEOFENCE_RADIUS_IN_METERS
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
@@ -29,6 +31,7 @@ class SaveReminderFragment : BaseFragment() {
         val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
         internal const val ACTION_GEOFENCE_EVENT =
             "SaveReminderFragment.project4.action.ACTION_GEOFENCE_EVENT"
+
     }
 
     //Get the view model this time as a single to be shared with the another fragment
@@ -97,7 +100,7 @@ class SaveReminderFragment : BaseFragment() {
                 .setCircularRegion(
                     reminderDataItem.latitude!!,
                     reminderDataItem.longitude!!,
-                    100f
+                    GEOFENCE_RADIUS_IN_METERS
                 )
                 .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
@@ -119,19 +122,16 @@ class SaveReminderFragment : BaseFragment() {
     @SuppressLint("MissingPermission")
     private fun addGeoFenceRequest(geofencingRequest: GeofencingRequest, geofence: Geofence) {
 
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-            addOnCompleteListener {
-                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
-                    addOnSuccessListener {
-
-                        Log.e("Geofence added", geofence.requestId)
-                    }
-                    addOnFailureListener {
-                        Log.e("Could not add Geofence", geofence.requestId)
-                        if ((it.message != null)) {
-                            Log.w(TAG, it.message.toString())
-                        }
-                    }
+        geofencingClient?.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+            addOnSuccessListener {
+                // Geofences added
+                Log.e("Geofence added", geofence.requestId)
+            }
+            addOnFailureListener {
+                // Failed to add geofences
+                Log.e("Could not add Geofence", geofence.requestId)
+                if ((it.message != null)) {
+                    Log.w(TAG, it.message.toString())
                 }
             }
         }

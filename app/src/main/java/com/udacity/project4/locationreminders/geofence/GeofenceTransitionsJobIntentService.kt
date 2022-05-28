@@ -33,6 +33,12 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                 intent
             )
         }
+
+        internal object GeofencingConstants{
+            const val GEOFENCE_RADIUS_IN_METERS = 100f
+            const val ACTION_GEOFENCE_EVENT =
+                "ACTION_GEOFENCE_EVENT"
+        }
     }
 
 
@@ -40,6 +46,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         val tag = "JobOnHandle"
         if (intent.action == ACTION_GEOFENCE_EVENT) {
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
+
             Log.e("$tag: trig geos", geofencingEvent.triggeringGeofences.size.toString())
 
             if (geofencingEvent.hasError()) {
@@ -77,8 +84,9 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
         CoroutineScope(coroutineContext).launch(SupervisorJob()) {
 
-            for (i in triggeringGeofences){
-                val result = remindersLocalRepository.getReminder(i.requestId)
+            var i = 0
+            while (i < triggeringGeofences.size) {
+                val result = remindersLocalRepository.getReminder(triggeringGeofences[i].requestId)
 
                 if (result is Result.Success<ReminderDTO>) {
                     val reminderDTO = result.data
@@ -97,6 +105,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                     remindersLocalRepository.deleteReminder(reminderDTO.id)
 //                _viewModel.geofenceSet.remove(currentGeofence)
                 }
+
             }
         }
     }
