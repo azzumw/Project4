@@ -31,7 +31,6 @@ class SaveReminderFragment : BaseFragment() {
         val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = TimeUnit.HOURS.toMillis(1)
         internal const val ACTION_GEOFENCE_EVENT =
             "SaveReminderFragment.project4.action.ACTION_GEOFENCE_EVENT"
-
     }
 
     //Get the view model this time as a single to be shared with the another fragment
@@ -94,29 +93,30 @@ class SaveReminderFragment : BaseFragment() {
 
             _viewModel.validateAndSaveReminder(reminderDataItem)
 
-            //create a geofence
-            val geofence = Geofence.Builder()
-                .setRequestId(reminderDataItem.id)
-                .setCircularRegion(
-                    reminderDataItem.latitude!!,
-                    reminderDataItem.longitude!!,
-                    GEOFENCE_RADIUS_IN_METERS
-                )
-                .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                .build()
+            createGeofenceAndRequestAndAdd(reminderDataItem)
 
-//            _viewModel.addGeofenceToSet(geofence)
-
-            //create geofence request
-            val geofencingRequest = GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .addGeofence(geofence)
-//                .addGeofences(_viewModel.getGeofenceSetAsList())
-                .build()
-
-            addGeoFenceRequest(geofencingRequest, geofence)
         }
+    }
+
+    private fun createGeofenceAndRequestAndAdd(reminderDataItem: ReminderDataItem) {
+        val geofence = Geofence.Builder()
+            .setRequestId(reminderDataItem.id)
+            .setCircularRegion(
+                reminderDataItem.latitude!!,
+                reminderDataItem.longitude!!,
+                GEOFENCE_RADIUS_IN_METERS
+            )
+            .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .build()
+
+        //create geofence request
+        val geofencingRequest = GeofencingRequest.Builder()
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .addGeofence(geofence)
+            .build()
+
+        addGeoFenceRequest(geofencingRequest, geofence)
     }
 
     @SuppressLint("MissingPermission")
