@@ -69,40 +69,35 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
 
+
         val remindersLocalRepository: ReminderDataSource by inject()
-
-        val currentGeofence = triggeringGeofences[0]
-        val requestId = currentGeofence.requestId
-
-        CoroutineScope(coroutineContext).launch(SupervisorJob()) {
-            //get the reminder with the request id
-            val result = remindersLocalRepository.getReminder(requestId)
-            if (result is Result.Success<ReminderDTO>) {
-                val reminderDTO = result.data
-                //send a notification to the user with the reminder details
-                sendNotification(
-                    this@GeofenceTransitionsJobIntentService, ReminderDataItem(
-                        reminderDTO.title,
-                        reminderDTO.description,
-                        reminderDTO.location,
-                        reminderDTO.latitude,
-                        reminderDTO.longitude,
-                        reminderDTO.id
-                    )
-                )
-
-                remindersLocalRepository.deleteReminder(reminderDTO.id)
-//                _viewModel.geofenceSet.remove(currentGeofence)
-            }
-
-        }
 
 //        val currentGeofence = triggeringGeofences[0]
 //        val requestId = currentGeofence.requestId
 
-        //Get the local repository instance
-//        val remindersLocalRepository: RemindersLocalRepository by inject()
+        CoroutineScope(coroutineContext).launch(SupervisorJob()) {
 
+            for (i in triggeringGeofences){
+                val result = remindersLocalRepository.getReminder(i.requestId)
 
+                if (result is Result.Success<ReminderDTO>) {
+                    val reminderDTO = result.data
+                    //send a notification to the user with the reminder details
+                    sendNotification(
+                        this@GeofenceTransitionsJobIntentService, ReminderDataItem(
+                            reminderDTO.title,
+                            reminderDTO.description,
+                            reminderDTO.location,
+                            reminderDTO.latitude,
+                            reminderDTO.longitude,
+                            reminderDTO.id
+                        )
+                    )
+
+                    remindersLocalRepository.deleteReminder(reminderDTO.id)
+//                _viewModel.geofenceSet.remove(currentGeofence)
+                }
+            }
+        }
     }
 }
