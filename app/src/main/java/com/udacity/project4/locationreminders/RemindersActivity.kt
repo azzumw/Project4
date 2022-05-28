@@ -149,7 +149,6 @@ class RemindersActivity : AppCompatActivity() {
    *  the opportunity to turn on location services within our app.
    */
     private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true) {
-        // TODO: Step 6 add code to check that the device's location is on
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_LOW_POWER
         }
@@ -177,7 +176,6 @@ class RemindersActivity : AppCompatActivity() {
         locationSettingsResponseTask.addOnCompleteListener {
             if ( it.isSuccessful ) {
                 Log.e(TAG,"SUCCESSFUL!")
-//                addGeofenceForClue()
             }
         }
 

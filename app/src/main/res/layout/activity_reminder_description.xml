@@ -23,7 +23,6 @@
             android:orientation="vertical"
             android:padding="16dp"
             tools:context=".locationreminders.ReminderDescriptionActivity">
-            <!--TODO: add the design of the reminder details-->
 
             <TextView
                 android:id="@+id/reminderHeader_tv"
