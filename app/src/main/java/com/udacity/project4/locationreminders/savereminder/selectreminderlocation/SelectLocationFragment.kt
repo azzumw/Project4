@@ -85,10 +85,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
     private fun onLocationSelected() {
-        _viewModel.latitude.value = selectedPoi.latLng.latitude
-        _viewModel.longitude.value = selectedPoi.latLng.longitude
         _viewModel.isPoiSelected.value = true
-        _viewModel.reminderTitle.value = selectedPoi.name
         _viewModel.selectedPOI.value = selectedPoi
         _viewModel.reminderSelectedLocationStr.value = selectedPoi.name
 
@@ -161,41 +158,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    private fun getDeviceLocation() {
-        try {
-            if (isPermissionGranted()) {
-                val locationResult: Task<Location> = fusedLocationClient.lastLocation
-                locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
-                    if (task.isSuccessful) {
-                        // Set the map's camera position to the current location of the device.
-                        val location: Location? = task.result
-                        val currentLatLng = LatLng(
-                            location!!.latitude,
-                            location.longitude
-                        )
-                        val update = CameraUpdateFactory.newLatLngZoom(
-                            currentLatLng,
-                            18f
-                        )
-                        map.moveCamera(update)
-                    }
-                })
-            }
-        } catch (e: SecurityException) {
-            Log.e("Exception: %s", e.message!!)
-        }
-    }
-
     private fun isPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun locationEnabled() {
-        val locationManager =  requireActivity().applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) // Return a boolean
     }
 
     @SuppressLint("MissingPermission")
@@ -268,19 +235,4 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
         else -> super.onOptionsItemSelected(item)
     }
-
-    //    private fun setMapLongClick(googleMap: GoogleMap) {
-//
-//        googleMap.setOnMapLongClickListener {
-//            val snippet = String.format(
-//                Locale.getDefault(),
-//                "Lat: %1$.5f, Long: %2$.5f",
-//                it.latitude,
-//                it.longitude
-//            )
-//            googleMap.addMarker(
-//                MarkerOptions().position(it).title(getString(R.string.dropped_pin)).snippet(snippet)
-//            )
-//        }
-//    }
 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
+
     val isPoiSelected = MutableLiveData<Boolean>(false)
     val reminderTitle = MutableLiveData<String>()
     val reminderDescription = MutableLiveData<String>()
@@ -26,7 +27,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
 
     val longitude = MutableLiveData<Double>()
 
-    val geofenceSet = mutableSetOf<Geofence>()
 
     /**
      * Clear the live data objects to start fresh next time the view model gets called
@@ -86,13 +86,5 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             return false
         }
         return true
-    }
-
-    fun addGeofenceToSet(geofence: Geofence){
-        geofenceSet.add(geofence)
-    }
-
-    fun getGeofenceSetAsList():List<Geofence>{
-        return geofenceSet.toList()
     }
 }
