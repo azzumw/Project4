@@ -21,8 +21,9 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-
+@ExperimentalCoroutinesApi
 @MediumTest
+@RunWith(AndroidJUnit4::class)
 class ReminderListFragmentTest {
 
     //    TODO: test the navigation of the fragments.
