@@ -54,6 +54,7 @@ class RemindersDaoTest {
         //WHEN  - load the reminder from the database using its id
         val loadedReminder = database.reminderDao().getReminderById(reminder.id)
 
+        // THEN - The loaded data contains the expected values.
         assertThat<ReminderDTO>(loadedReminder as ReminderDTO, notNullValue())
         assertThat(loadedReminder.id, `is`(reminder.id))
         assertThat(loadedReminder.location, `is`(reminder.location))
