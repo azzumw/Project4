@@ -36,7 +36,7 @@ class ReminderListFragmentTest {
 
 
     @Test
-    fun clickAddReminderFab_navigateToSaverReminder() {
+    fun clickAddReminderFab_navigateToSaveReminder() {
 
         //GIVEN - ReminderListFragment is launched with empty list
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
