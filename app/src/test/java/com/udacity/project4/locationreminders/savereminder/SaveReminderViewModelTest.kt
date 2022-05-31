@@ -6,6 +6,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -13,16 +14,17 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.AutoCloseKoinTest
+import org.koin.core.context.stopKoin
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-class SaveReminderViewModelTest: AutoCloseKoinTest() {
+class SaveReminderViewModelTest {
 
     private lateinit var fakeDataSource: FakeDataSource
 
@@ -44,6 +46,8 @@ class SaveReminderViewModelTest: AutoCloseKoinTest() {
     @Test
     fun saveReminder() {
 
+        val x = 2+ 2
+        assertThat(x).isEqualTo(4)
 
         //Given
 //        val reminder1 = ReminderDTO("reminder1","","Home",51.0,-51.0,"home")
@@ -79,6 +83,11 @@ class SaveReminderViewModelTest: AutoCloseKoinTest() {
 
         //Then the data is validated and returns true
 
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
     }
 
 }
