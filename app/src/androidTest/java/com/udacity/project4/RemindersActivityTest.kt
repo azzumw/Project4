@@ -180,6 +180,7 @@ class RemindersActivityTest :
     fun e2e_correctTitleErrorDisplayed() {
 
         val activityScenarioRule = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenarioRule)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
 
@@ -214,6 +215,7 @@ class RemindersActivityTest :
 
         //GIVEN: correct a title exists
         val activityScenarioRule = launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenarioRule)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
 
@@ -237,6 +239,7 @@ class RemindersActivityTest :
     fun e2e_snackBarWithCorrectTextAppears_launch_SaveLocationFragment() {
 
         val activityScenarioRule = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenarioRule)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
 
