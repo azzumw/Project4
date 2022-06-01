@@ -118,7 +118,6 @@ class RemindersActivityTest :
 
         onView(withId(R.id.saveBtn)).click()
 
-        onView(withId(R.id.selectLocation)).check(matches(withText(containsString("Dropped Pin"))))
-
+        onView(withId(R.id.selectedLocation)).check(matches(withText(containsString("Dropped Pin"))))
     }
 }
