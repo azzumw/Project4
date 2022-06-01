@@ -123,6 +123,8 @@ dependencies {
 //    testImplementation("io.insert-koin:koin-test-junit4:$koinVersion")
 
 
+    androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
+
 
     //Maps & Geofencing
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"

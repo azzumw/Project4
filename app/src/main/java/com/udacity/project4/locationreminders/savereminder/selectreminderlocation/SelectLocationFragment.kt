@@ -29,6 +29,7 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import kotlinx.android.synthetic.main.it_reminder.*
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -101,15 +102,43 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         setMapStyle(map)
         setPoiClick(map)
+        setMapLongClick(map)
 
         showSnackBar(getString(R.string.select_poi))
 
         enableMyLocation()
     }
 
+    private fun setMapLongClick(googleMap:GoogleMap) {
+        isPoiSelected = false
+        googleMap.setOnMapLongClickListener {
+            googleMap.clear()
+
+            // A Snippet is Additional text that's displayed below the title.
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                it.latitude,
+                it.longitude
+            )
+
+            val marker = MarkerOptions().position(it)
+                .title(getString(R.string.dropped_pin))
+                .snippet(snippet)
+
+            googleMap.addMarker(marker)
+
+            selectedPoi = PointOfInterest(it,marker.title,marker.title)
+        }
+
+        isPoiSelected = true
+
+    }
+
 
     private fun setPoiClick(googleMap: GoogleMap) {
 
+        isPoiSelected = false
         googleMap.setOnPoiClickListener {
             googleMap.clear()
 
