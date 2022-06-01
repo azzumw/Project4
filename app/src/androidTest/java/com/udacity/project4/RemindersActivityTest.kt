@@ -20,7 +20,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.*
-import androidx.viewpager.widget.ViewPager
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
@@ -32,7 +31,6 @@ import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
 import org.hamcrest.core.StringContains.containsString
 import org.junit.*
@@ -130,15 +128,14 @@ class RemindersActivityTest :
     fun e2e_saveAReminder() {
 
         val activity   = launch(RemindersActivity::class.java)
-
         dataBindingIdlingResource.monitorActivity(activity)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
 
         onView(withId(R.id.selectLocation)).perform(click())
 
-//        SystemClock.sleep(5000)
-        uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)),5000L)
+        SystemClock.sleep(5000)
+//        uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)),5000L)
 
         onView(withId(R.id.map)).perform(longClick())
 //        SystemClock.sleep(2000)
@@ -155,8 +152,10 @@ class RemindersActivityTest :
         viewWithId(R.id.saveReminder).click()
 
 //        onView(withText("Reminder Saved!")).inRoot(withDecorView(not(decor))).check(matches(isDisplayed()))
-
-
+        // toast is shown
+        onView(withText(R.string.reminder_saved)).inRoot(
+            withDecorView(not(decorView))
+        ).check(matches(isDisplayed()))
 
         viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText(remindertitle))))
 
@@ -182,18 +181,18 @@ class RemindersActivityTest :
         val activityScenarioRule = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenarioRule)
 
-        onView(withId(R.id.addReminderFAB)).perform(click())
+        viewWithId(R.id.addReminderFAB).perform(click())
 
-        onView(withId(R.id.selectLocation)).perform(click())
+        viewWithId(R.id.selectLocation).perform(click())
 
         SystemClock.sleep(5000)
 
-        onView(withId(R.id.map)).perform(longClick())
+        viewWithId(R.id.map).perform(longClick())
         SystemClock.sleep(2000)
-        onView(withId(R.id.map)).perform(longClick())
-        onView(withId(R.id.map)).perform(click())
+        viewWithId(R.id.map).perform(longClick())
+        viewWithId(R.id.map).perform(click())
 
-        onView(withId(R.id.saveBtn)).click()
+        viewWithId(R.id.saveBtn).click()
 
         viewWithId(R.id.reminderDescription).type(reminderDesc)
 
@@ -217,7 +216,7 @@ class RemindersActivityTest :
         val activityScenarioRule = launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenarioRule)
 
-        onView(withId(R.id.addReminderFAB)).perform(click())
+        viewWithId(R.id.addReminderFAB).perform(click())
 
         viewWithId(R.id.reminderTitle).type(remindertitle)
 
@@ -238,12 +237,12 @@ class RemindersActivityTest :
     @Test
     fun e2e_snackBarWithCorrectTextAppears_launch_SaveLocationFragment() {
 
-        val activityScenarioRule = ActivityScenario.launch(RemindersActivity::class.java)
+        val activityScenarioRule = launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenarioRule)
 
-        onView(withId(R.id.addReminderFAB)).perform(click())
+        viewWithId(R.id.addReminderFAB).perform(click())
 
-        onView(withId(R.id.selectLocation)).perform(click())
+        viewWithId(R.id.selectLocation).perform(click())
 
         uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)),2000L)
 
