@@ -64,7 +64,5 @@ class ReminderListFragmentTest {
         val reminder =ReminderDataItem("Tesco","","East Road",51.0,51.0,"id1")
         saveReminderViewModel.saveReminder(reminder)
 
-
-
     }
 }

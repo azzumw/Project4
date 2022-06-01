@@ -9,6 +9,7 @@
         <entry key="app/src/main/res/layout/fragment_reminders.xml" value="0.1425925925925926" />
         <entry key="app/src/main/res/layout/fragment_save_reminder.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/fragment_select_location.xml" value="0.19610507246376813" />
+        <entry key="app/src/main/res/layout/it_reminder.xml" value="0.1" />
         <entry key="app/src/main/res/menu/map_options.xml" value="0.10185185185185185" />
       </map>
     </option>

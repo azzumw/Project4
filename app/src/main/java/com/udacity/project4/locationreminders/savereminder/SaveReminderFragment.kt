@@ -77,7 +77,6 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.saveReminder.setOnClickListener {
 
-
             val title = _viewModel.reminderTitle.value
             val description = _viewModel.reminderDescription.value
             val location = _viewModel.reminderSelectedLocationStr.value
@@ -91,10 +90,9 @@ class SaveReminderFragment : BaseFragment() {
                 longitude = longitude
             )
 
-            _viewModel.validateAndSaveReminder(reminderDataItem)
-
-            createGeofenceAndRequestAndAdd(reminderDataItem)
-
+            if(_viewModel.validateAndSaveReminder(reminderDataItem)){
+                createGeofenceAndRequestAndAdd(reminderDataItem)
+            }
         }
     }
 

@@ -3,18 +3,15 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -29,7 +26,6 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import kotlinx.android.synthetic.main.it_reminder.*
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -79,7 +75,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             if (isPoiSelected){
                 onLocationSelected()
             }else{
-                Toast.makeText(context,getString(R.string.select_poi),Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,getString(R.string.selection_location_message),Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -104,7 +100,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setPoiClick(map)
         setMapLongClick(map)
 
-        showSnackBar(getString(R.string.select_poi))
+        showSnackBar(getString(R.string.selection_location_message))
 
         enableMyLocation()
     }
