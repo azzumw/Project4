@@ -26,6 +26,7 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -62,7 +63,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+
+        wrapEspressoIdlingResource {
+            mapFragment.getMapAsync(this)
+        }
 
         return binding.root
     }

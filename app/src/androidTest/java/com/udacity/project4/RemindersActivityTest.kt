@@ -8,6 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers
@@ -26,13 +27,13 @@ import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.monitorActivity
+import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.not
 import org.hamcrest.core.StringContains.containsString
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -105,14 +106,29 @@ class RemindersActivityTest :
 
     }
 
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
+
 
 //    TODO: add End to End testing to the app
+    @Before
+    fun registerIdlingResources(){
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().register(dataBindingIdlingResource)
+    }
+
+    @After
+    fun unregisterIdlingResources(){
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
+        IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+
+    }
 
 
     @Test
     fun e2e_saveAReminder() {
 
         val activity   = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activity)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
 
@@ -121,7 +137,7 @@ class RemindersActivityTest :
         SystemClock.sleep(5000)
 
         onView(withId(R.id.map)).perform(longClick())
-        SystemClock.sleep(2000)
+//        SystemClock.sleep(2000)
         onView(withId(R.id.map)).perform(longClick())
         onView(withId(R.id.map)).perform(click())
 
