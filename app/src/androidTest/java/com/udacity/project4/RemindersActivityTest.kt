@@ -1,17 +1,17 @@
 package com.udacity.project4
 
 
+
 import android.app.Application
 import android.os.SystemClock
 import android.view.View
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ActivityScenario.launch
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
-import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -20,6 +20,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.*
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
@@ -31,6 +32,7 @@ import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
 import org.hamcrest.core.StringContains.containsString
 import org.junit.*
@@ -127,14 +129,16 @@ class RemindersActivityTest :
     @Test
     fun e2e_saveAReminder() {
 
-        val activity   = ActivityScenario.launch(RemindersActivity::class.java)
+        val activity   = launch(RemindersActivity::class.java)
+
         dataBindingIdlingResource.monitorActivity(activity)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
 
         onView(withId(R.id.selectLocation)).perform(click())
 
-        SystemClock.sleep(5000)
+//        SystemClock.sleep(5000)
+        uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)),5000L)
 
         onView(withId(R.id.map)).perform(longClick())
 //        SystemClock.sleep(2000)
@@ -152,6 +156,8 @@ class RemindersActivityTest :
 
 //        onView(withText("Reminder Saved!")).inRoot(withDecorView(not(decor))).check(matches(isDisplayed()))
 
+
+
         viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText(remindertitle))))
 
         SystemClock.sleep(2000)
@@ -167,7 +173,7 @@ class RemindersActivityTest :
     }
 
     /**
-     * @Test: title error is displayed with correct error text
+     * Test: title error is displayed with correct error text
      * */
 
     @Test
@@ -200,7 +206,7 @@ class RemindersActivityTest :
     }
 
     /**
-     * @Test: location error is displayed with correct error text
+     * Test: location error is displayed with correct error text
      * */
 
     @Test
@@ -224,7 +230,7 @@ class RemindersActivityTest :
     }
 
     /**
-     * @Test: snackbar appears when SaveLocationFragment launches with correct text
+     * Test: snackbar appears when SaveLocationFragment launches with correct text
      * */
 
     @Test
