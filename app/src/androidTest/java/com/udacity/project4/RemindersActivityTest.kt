@@ -213,7 +213,7 @@ class RemindersActivityTest :
     fun e2e_correctLocationErrorDisplayed() {
 
         //GIVEN: correct a title exists
-        val activityScenarioRule = ActivityScenario.launch(RemindersActivity::class.java)
+        val activityScenarioRule = launch(RemindersActivity::class.java)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
 
