@@ -23,9 +23,8 @@ import org.koin.core.context.stopKoin
 @ExperimentalCoroutinesApi
 class RemindersListViewModelTest {
 
-    //TODO: provide testing to the RemindersListViewModel and its live data objects
     private lateinit var fakeDataSource: FakeDataSource
-    private lateinit var remindersListViewModel : RemindersListViewModel
+    private lateinit var remindersListViewModel: RemindersListViewModel
     private val appContext = ApplicationProvider.getApplicationContext<Application>()
 
     //For livedata
@@ -33,14 +32,14 @@ class RemindersListViewModelTest {
     var instantExecutorRule = InstantTaskExecutorRule()
 
     @Before
-    fun setup(){
+    fun setup() {
         fakeDataSource = FakeDataSource()
-        remindersListViewModel = RemindersListViewModel(appContext,fakeDataSource)
+        remindersListViewModel = RemindersListViewModel(appContext, fakeDataSource)
 
     }
 
     @Test
-    fun loadReminders_resultError() = runBlockingTest{
+    fun loadReminders_resultError() = runBlockingTest {
         //GIVEN - no data exist
         //make the repository return error
         fakeDataSource.setShouldReturnError(true)
@@ -53,22 +52,22 @@ class RemindersListViewModelTest {
         remindersListViewModel.showLoading.getOrAwaitValue()
 
         //THEN - liveData values are as expected and appropriate error message is returned
-        assertThat(remindersListViewModel.showSnackBar.value,`is`("Reminders not found!"))
+        assertThat(remindersListViewModel.showSnackBar.value, `is`("Reminders not found!"))
         assertThat(remindersListViewModel.showLoading.value, `is`(false))
     }
 
     @Test
-    fun loadReminders_resultSuccess(){
+    fun loadReminders_resultSuccess() {
 
         //GIVEN - a list of reminders exist in the repository
-        val reminder1 = ReminderDTO("Reminder 1","desc","London",34.0,34.0,"ID_1")
-        val reminder2 = ReminderDTO("Reminder 2","desc","Darlington",65.0,14.0,"ID_2")
-        val reminder3 = ReminderDTO("Reminder 3","desc","Telford",54.0,74.0,"ID_3")
+        val reminder1 = ReminderDTO("Reminder 1", "desc", "London", 34.0, 34.0, "ID_1")
+        val reminder2 = ReminderDTO("Reminder 2", "desc", "Darlington", 65.0, 14.0, "ID_2")
+        val reminder3 = ReminderDTO("Reminder 3", "desc", "Telford", 54.0, 74.0, "ID_3")
 
         //Make repository return list
         fakeDataSource.setShouldReturnError(false)
 
-        fakeDataSource.addReminders(reminder1,reminder2,reminder3)
+        fakeDataSource.addReminders(reminder1, reminder2, reminder3)
 
         //WHEN - reminders are loaded
         remindersListViewModel.loadReminders()
@@ -82,7 +81,7 @@ class RemindersListViewModelTest {
         assertThat(valueList, hasSize(3))
 
         //showloading is false
-        assertThat(remindersListViewModel.showLoading.value,`is`(false))
+        assertThat(remindersListViewModel.showLoading.value, `is`(false))
     }
 
     @After
