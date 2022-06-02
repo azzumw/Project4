@@ -1,10 +1,9 @@
 package com.udacity.project4
 
-
-
+import android.app.Activity
 import android.app.Application
 import android.os.SystemClock
-import android.view.View
+import android.widget.Toast
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.launch
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -31,6 +30,7 @@ import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
 import org.hamcrest.core.StringContains.containsString
 import org.junit.*
@@ -56,14 +56,13 @@ class RemindersActivityTest :
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
-    private var decorView: View? = null
 
-    companion object{
+    companion object {
         private lateinit var uiDevice: UiDevice
 
         @BeforeClass
         @JvmStatic
-        fun setup(){
+        fun setup() {
             uiDevice = UiDevice.getInstance(getInstrumentation())
         }
     }
@@ -110,23 +109,37 @@ class RemindersActivityTest :
 
 
     @Before
-    fun registerIdlingResources(){
+    fun registerIdlingResources() {
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().register(dataBindingIdlingResource)
     }
 
     @After
-    fun unregisterIdlingResources(){
+    fun unregisterIdlingResources() {
         IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
 
+    }
+
+    // get activity context
+    private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
+        var activity: Activity? = null
+        activityScenario.onActivity {
+            activity = it
+        }
+        return activity
     }
 
 
     @Test
     fun e2e_saveAReminder() {
 
-        val activity   = launch(RemindersActivity::class.java)
+        val activity = launch(RemindersActivity::class.java)
+
+        val decor = activity.onActivity {
+            it.window.decorView
+        }
+
         dataBindingIdlingResource.monitorActivity(activity)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
@@ -150,11 +163,24 @@ class RemindersActivityTest :
 
         viewWithId(R.id.saveReminder).click()
 
-//        onView(withText("Reminder Saved!")).inRoot(withDecorView(not(decor))).check(matches(isDisplayed()))
-        // toast is shown
-        onView(withText(R.string.reminder_saved)).inRoot(
-            withDecorView(not(decorView))
-        ).check(matches(isDisplayed()))
+        uiDevice.wait(Until.hasObject(By.clazz(Toast::class.java)), 5000L)
+
+
+//        onView(withText(R.string.reminder_saved)).inRoot(
+//            withDecorView(
+//                not(
+//                    `is`(
+//                        getActivity(activity)?.window?.decorView
+//                    )
+//                )
+//            )
+//        ).check(
+//            matches(
+//                isDisplayed()
+//            )
+//        )
+
+
 
         viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText(remindertitle))))
 
@@ -177,7 +203,7 @@ class RemindersActivityTest :
     @Test
     fun e2e_correctTitleErrorDisplayed() {
 
-        val activityScenarioRule = ActivityScenario.launch(RemindersActivity::class.java)
+        val activityScenarioRule = launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenarioRule)
 
         viewWithId(R.id.addReminderFAB).perform(click())
@@ -243,7 +269,7 @@ class RemindersActivityTest :
 
         viewWithId(R.id.selectLocation).perform(click())
 
-        uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)),2000L)
+        uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)), 2000L)
 
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.selection_location_message)))
