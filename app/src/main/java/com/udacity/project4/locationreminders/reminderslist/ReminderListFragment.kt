@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.authentication.LoginViewModel
@@ -34,7 +35,12 @@ class ReminderListFragment : BaseFragment() {
 //        val navController = findNavController()
         loginViewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
             when (authenticationState) {
-                LoginViewModel.AuthenticationState.AUTHENTICATED -> Log.i(TAG, "Authenticated")
+                LoginViewModel.AuthenticationState.AUTHENTICATED -> {
+                    Log.e(TAG,FirebaseAuth.getInstance().currentUser?.displayName.toString())
+                    Log.e(TAG,FirebaseAuth.getInstance().currentUser?.email.toString())
+                    Log.i(TAG, "Authenticated")
+                }
+
                 // If the user is not logged in, they should not be able to view ReminderList
                 // so navigate them to the authentication activity
                 LoginViewModel.AuthenticationState.UNAUTHENTICATED -> {
@@ -107,7 +113,6 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-//                TODO: add the logout implementation
                 //log user out, nav to Login screen
                 AuthUI.getInstance().signOut(requireContext())
                 return true

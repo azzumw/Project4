@@ -36,8 +36,6 @@ class AuthenticationActivity : AppCompatActivity() {
         }
     }
 
-
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SIGN_IN_REQUEST_CODE) {
@@ -78,8 +76,16 @@ class AuthenticationActivity : AppCompatActivity() {
         )
 
         startActivityForResult(
-            AuthUI.getInstance().createSignInIntentBuilder()
-                .setAvailableProviders(providers).build(), SIGN_IN_REQUEST_CODE
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+//                .setIsSmartLockEnabled(false)
+                .build(),
+            SIGN_IN_REQUEST_CODE
         )
+
+//        startActivityForResult(
+//            AuthUI.getInstance().createSignInIntentBuilder()
+//                .setAvailableProviders(providers).build(), SIGN_IN_REQUEST_CODE )
     }
 }
