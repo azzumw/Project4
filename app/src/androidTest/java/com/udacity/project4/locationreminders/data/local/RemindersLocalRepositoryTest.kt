@@ -11,6 +11,7 @@ import com.udacity.project4.locationreminders.data.dto.succeeded
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
@@ -25,8 +26,6 @@ import org.junit.runner.RunWith
 //Medium Test to test the repository
 @MediumTest
 class RemindersLocalRepositoryTest {
-
-//    TODO: Add testing implementation to the RemindersLocalRepository.kt
 
     @get:Rule
     val executorRule = InstantTaskExecutorRule()
@@ -61,5 +60,21 @@ class RemindersLocalRepositoryTest {
         assertThat(result.succeeded,`is`(true))
         result as Result.Success
         assertThat(result.data.title,`is`("Reminder1"))
+    }
+
+    @Test
+    fun deleteReminder_getById_returnErrorOrNull()= runBlockingTest{
+        //GIVEN: a reminder is inserted
+        val reminder = ReminderDTO("Reminder1","","Hackney",51.0,54.0,"idh1")
+        database.reminderDao().saveReminder(reminder)
+
+        //WHEN - the reminder is deleted, and retrieved
+        database.reminderDao().deleteReminder(reminder.id)
+        val retrievedReminder = database.reminderDao().getReminderById(reminder.id)
+
+        //THEN - reminder is not found and appropriate error is shown
+        retrievedReminder as Result.Error
+        assertThat(retrievedReminder.message,`is`("Reminder not found!"))
+
     }
 }

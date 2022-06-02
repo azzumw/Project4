@@ -109,7 +109,6 @@ class RemindersActivityTest :
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
 
-//    TODO: add End to End testing to the app
     @Before
     fun registerIdlingResources(){
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)

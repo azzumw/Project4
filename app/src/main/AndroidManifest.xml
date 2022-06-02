@@ -23,7 +23,10 @@
 
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".locationreminders.ReminderDescriptionActivity"></activity>
+        <activity android:name=".locationreminders.ReminderDescriptionActivity"
+            android:parentActivityName=".locationreminders.RemindersActivity"
+            android:noHistory="true">
+        </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -47,6 +50,7 @@
             </intent-filter>
 
         </activity>
+
         <receiver
             android:name=".locationreminders.geofence.GeofenceBroadcastReceiver"
             android:enabled="true"
