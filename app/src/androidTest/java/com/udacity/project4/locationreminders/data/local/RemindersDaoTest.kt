@@ -34,7 +34,7 @@ class RemindersDaoTest {
     private lateinit var database: RemindersDatabase
 
     @Before
-    fun initDb(){
+    fun initDb() {
         database = Room.inMemoryDatabaseBuilder(
             getApplicationContext(),
             RemindersDatabase::class.java
@@ -42,13 +42,13 @@ class RemindersDaoTest {
     }
 
     @After
-    fun closeDb () = database.close()
+    fun closeDb() = database.close()
 
     @Test
-    fun insertReminder_and_getById() = runBlockingTest{
+    fun insertReminder_and_getById() = runBlockingTest {
 
         //Given - a reminder is inserted
-        val reminder = ReminderDTO("Reminder1","","Hackney",51.0,54.0,"idh1")
+        val reminder = ReminderDTO("Reminder1", "", "Hackney", 51.0, 54.0, "idh1")
         database.reminderDao().saveReminder(reminder)
 
         //WHEN  - load the reminder from the database using its id
@@ -61,7 +61,4 @@ class RemindersDaoTest {
         assertThat(loadedReminder.title, `is`(reminder.title))
 
     }
-
-
-
 }
