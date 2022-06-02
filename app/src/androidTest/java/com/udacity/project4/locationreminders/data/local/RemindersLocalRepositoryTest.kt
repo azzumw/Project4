@@ -16,6 +16,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,18 +64,19 @@ class RemindersLocalRepositoryTest {
     }
 
     @Test
-    fun deleteReminder_getById_returnErrorOrNull()= runBlockingTest{
+    fun deleteReminder_getById_returnErrorMessageOnNull()= runBlocking{
+        //Error message to be expected
+        val error = "Reminder not found!"
         //GIVEN: a reminder is inserted
         val reminder = ReminderDTO("Reminder1","","Hackney",51.0,54.0,"idh1")
-        database.reminderDao().saveReminder(reminder)
+        localRepository.saveReminder(reminder)
 
         //WHEN - the reminder is deleted, and retrieved
-        database.reminderDao().deleteReminder(reminder.id)
-        val retrievedReminder = database.reminderDao().getReminderById(reminder.id)
+        localRepository.deleteReminder(reminder.id)
+        val retrievedReminder = localRepository.getReminder(reminder.id)
 
         //THEN - reminder is not found and appropriate error is shown
         retrievedReminder as Result.Error
-        assertThat(retrievedReminder.message,`is`("Reminder not found!"))
-
+        assertEquals(retrievedReminder.message,error)
     }
 }
