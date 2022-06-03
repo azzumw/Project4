@@ -18,24 +18,22 @@ import androidx.test.filters.MediumTest
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
-import com.udacity.project4.locationreminders.data.local.FakeDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
-import com.udacity.project4.util.getOrAwaitValue
 import com.udacity.project4.util.monitorFragment
 import com.udacity.project4.utils.EspressoIdlingResource
+import com.udacity.project4.viewWithId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
-import org.hamcrest.Matchers.`is`
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 
 import org.junit.Test
 import org.junit.runner.RunWith
+
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -52,18 +50,14 @@ class ReminderListFragmentTest  : KoinTest {
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
-    private lateinit var fakeDataSource: FakeDataSource
-    //    TODO: test the displayed data on the UI.
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     //    TODO: add testing for the error messages.
-
-
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private val dataBindingIdlingResource = DataBindingIdlingResource()
-
+    @Before
     fun init() {
         //stop the original app koin
         stopKoin()
@@ -95,16 +89,8 @@ class ReminderListFragmentTest  : KoinTest {
         runBlocking {
             repository.deleteAllReminders()
         }
-
     }
 
-
-    @Before
-    fun setUp(){
-        fakeDataSource = FakeDataSource()
-        repository = FakeDataSource()
-
-    }
     @Before
     fun registerIdlingResources() {
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
@@ -123,6 +109,7 @@ class ReminderListFragmentTest  : KoinTest {
         //GIVEN - ReminderListFragment is launched with empty list
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         val navController = mock(NavController::class.java)
+        dataBindingIdlingResource.monitorFragment(scenario)
 
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
@@ -138,28 +125,33 @@ class ReminderListFragmentTest  : KoinTest {
     }
 
     @Test
-    fun checkReminderIsDisplayed() = runBlockingTest{
-        val context = ApplicationProvider.getApplicationContext<Application>()
-
-        val reminderListViewModel = RemindersListViewModel(context,repository)
+    fun checkReminderIsDisplayed() = runBlocking{
 
         val reminder =
             ReminderDTO("Tesco", "", "East Road", 51.0, 51.0, "id1")
 
         repository.saveReminder(reminder)
 
-
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
-
         dataBindingIdlingResource.monitorFragment(scenario)
 
-        reminderListViewModel.loadReminders()
+        viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText("Tesco"))))
+        SystemClock.sleep(1000)
+    }
 
-        reminderListViewModel.remindersList.getOrAwaitValue()
+    @Test
+    fun checkReminderIsNotFound_showsSnackBar() = runBlocking{
+        val reminder =
+            ReminderDTO("Tesco", "", "East Road", 51.0, 51.0, "id1")
 
-//        assertThat(reminderListViewModel.remindersList.value?.get(0)?.location,`is`("East Road"))
+        repository.saveReminder(reminder)
+        repository.deleteAllReminders()
 
-        SystemClock.sleep(2000)
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
 
+        repository.getReminder("id1")
+//        viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText("Tesco"))))
+        SystemClock.sleep(1000)
     }
 }

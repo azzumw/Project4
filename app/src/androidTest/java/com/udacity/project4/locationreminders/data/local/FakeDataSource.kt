@@ -9,7 +9,11 @@ import kotlinx.coroutines.runBlocking
 class FakeDataSource() : ReminderDataSource {
 
     var remindersServiceData : LinkedHashMap<String,ReminderDTO> = LinkedHashMap()
+    private var shouldReturnError = false
 
+    fun setShouldReturnError(error: Boolean) {
+        shouldReturnError = error
+    }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
         return Result.Success(remindersServiceData.values.toList())
@@ -20,7 +24,11 @@ class FakeDataSource() : ReminderDataSource {
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
+        if (shouldReturnError) {
+            return Result.Error("Reminder not found!")
+        }
         return Result.Success(remindersServiceData.getValue(id))
+
     }
 
     override suspend fun deleteAllReminders() {
