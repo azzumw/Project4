@@ -118,6 +118,7 @@ class RemindersActivityTest :
     fun unregisterIdlingResources() {
         IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
+        stopKoin()
 
     }
 
@@ -163,23 +164,22 @@ class RemindersActivityTest :
 
         viewWithId(R.id.saveReminder).click()
 
-        uiDevice.wait(Until.hasObject(By.clazz(Toast::class.java)), 5000L)
+//        uiDevice.wait(Until.hasObject(By.clazz(Toast::class.java)), 5000L)
 
 
-//        onView(withText(R.string.reminder_saved)).inRoot(
-//            withDecorView(
-//                not(
-//                    `is`(
-//                        getActivity(activity)?.window?.decorView
-//                    )
-//                )
-//            )
-//        ).check(
-//            matches(
-//                isDisplayed()
-//            )
-//        )
-
+        onView(withText(R.string.reminder_saved)).inRoot(
+            withDecorView(
+                not(
+                    `is`(
+                        getActivity(activity)?.window?.decorView
+                    )
+                )
+            )
+        ).check(
+            matches(
+                isDisplayed()
+            )
+        )
 
 
         viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText(remindertitle))))
@@ -188,10 +188,10 @@ class RemindersActivityTest :
 
         uiDevice.openNotification()
 
-        uiDevice.wait(Until.hasObject(By.text(remindertitle)), 2000)
-        uiDevice.findObject(UiSelector().textContains(remindertitle)).clickAndWaitForNewWindow()
+//        uiDevice.wait(Until.hasObject(By.text(remindertitle)), 2000)
+//        uiDevice.findObject(UiSelector().textContains(remindertitle)).clickAndWaitForNewWindow()
 
-        onView(withText(remindertitle)).check(matches(isDisplayed()))
+//        onView(withText(remindertitle)).check(matches(isDisplayed()))
 
         activity.close()
     }
@@ -276,4 +276,6 @@ class RemindersActivityTest :
 
         activityScenarioRule.close()
     }
+
+
 }
