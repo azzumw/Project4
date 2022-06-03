@@ -141,12 +141,13 @@ class ReminderListFragmentTest  : KoinTest {
     fun checkReminderIsDisplayed() = runBlockingTest{
         val context = ApplicationProvider.getApplicationContext<Application>()
 
-        val reminderListViewModel = RemindersListViewModel(context,fakeDataSource)
+        val reminderListViewModel = RemindersListViewModel(context,repository)
 
         val reminder =
             ReminderDTO("Tesco", "", "East Road", 51.0, 51.0, "id1")
 
         repository.saveReminder(reminder)
+
 
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
 
