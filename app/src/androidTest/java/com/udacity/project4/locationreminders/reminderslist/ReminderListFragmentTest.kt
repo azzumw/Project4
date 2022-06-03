@@ -153,7 +153,9 @@ class ReminderListFragmentTest  : KoinTest {
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(scenario)
 
-        repository.getReminder("id1")
+        val remindersListViewModel = RemindersListViewModel(appContext,fakeDataSource)
+
+        remindersListViewModel.loadReminders()
 
         SystemClock.sleep(1000)
     }
