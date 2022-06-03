@@ -16,8 +16,11 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.R
+import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.FakeDataSource
+import com.udacity.project4.locationreminders.data.local.LocalDB
+import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.getOrAwaitValue
@@ -33,24 +36,75 @@ import org.junit.Rule
 
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.get
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
 @ExperimentalCoroutinesApi
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class ReminderListFragmentTest {
+class ReminderListFragmentTest  : KoinTest {
+
+    private lateinit var repository: ReminderDataSource
+    private lateinit var appContext: Application
 
     //    TODO: test the displayed data on the UI.
 
     //    TODO: add testing for the error messages.
+
+    private lateinit var fakeDataSource: FakeDataSource
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
+    fun init() {
+        //stop the original app koin
+        stopKoin()
+        appContext = ApplicationProvider.getApplicationContext()
+        val myModule = module {
+            viewModel {
+                RemindersListViewModel(
+                    appContext,
+                    get() as ReminderDataSource
+                )
+            }
+            single {
+                SaveReminderViewModel(
+                    appContext,
+                    get() as ReminderDataSource
+                )
+            }
+            single { RemindersLocalRepository(get()) as ReminderDataSource }
+            single { LocalDB.createRemindersDao(appContext) }
+        }
+        //declare a new koin module
+        startKoin {
+            modules(listOf(myModule))
+        }
+        //Get our real repository
+        repository = get()
 
+        //clear the data to start fresh
+        runBlocking {
+            repository.deleteAllReminders()
+        }
+
+    }
+
+
+    @Before
+    fun setUp(){
+        fakeDataSource = FakeDataSource()
+
+
+    }
     @Before
     fun registerIdlingResources() {
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
@@ -84,23 +138,25 @@ class ReminderListFragmentTest {
     }
 
     @Test
-    fun checkReminderIsDisplayed() {
+    fun checkReminderIsDisplayed() = runBlockingTest{
         val context = ApplicationProvider.getApplicationContext<Application>()
-        val dataSource = FakeDataSource()
-        val saveReminderViewModel = SaveReminderViewModel(context, dataSource)
-        val reminderListViewModel = RemindersListViewModel(context,dataSource)
 
-        val reminder = ReminderDataItem("Tesco", "", "East Road", 51.0, 51.0, "id1")
-        saveReminderViewModel.saveReminder(reminder)
+        val reminderListViewModel = RemindersListViewModel(context,fakeDataSource)
+
+        val reminder =
+            ReminderDTO("Tesco", "", "East Road", 51.0, 51.0, "id1")
+
+        fakeDataSource.saveReminder(reminder)
+
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
+
+        dataBindingIdlingResource.monitorFragment(scenario)
 
         reminderListViewModel.loadReminders()
 
         reminderListViewModel.remindersList.getOrAwaitValue()
 
         assertThat(reminderListViewModel.remindersList.value?.get(0)?.location,`is`("East Road"))
-
-        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
-        dataBindingIdlingResource.monitorFragment(scenario)
 
         SystemClock.sleep(2000)
 
