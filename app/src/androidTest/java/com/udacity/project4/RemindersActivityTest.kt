@@ -36,6 +36,7 @@ import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
 import org.hamcrest.core.StringContains.containsString
 import org.junit.*
+import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -50,22 +51,26 @@ import org.koin.test.get
 @SdkSuppress(minSdkVersion = 18)
 @LargeTest
 //END TO END test to black box test the app
-class RemindersActivityTest {// Extended Koin Test - embed autoclose @after method to close Koin after every test
-
-
-//    @get:Rule
-//    val rule = ActivityScenarioRule<RemindersActivity>(RemindersActivity::class.java)
+class RemindersActivityTest : KoinTest{// Extended Koin Test - embed autoclose @after method to close Koin after every test
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
 
     companion object {
+
         private lateinit var uiDevice: UiDevice
+        private const val windowOff = "settings put global window_animation_scale 0.0"
+        private const val animatorOff = "settings put global animator_duration_scale 0.0"
+        private const val transitionOff = "settings put global transition_animation_scale 0.0"
 
         @BeforeClass
         @JvmStatic
         fun setup() {
             uiDevice = UiDevice.getInstance(getInstrumentation())
+
+            uiDevice.executeShellCommand(windowOff)
+            uiDevice.executeShellCommand(transitionOff)
+            uiDevice.executeShellCommand(animatorOff)
         }
     }
 
@@ -73,39 +78,40 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
      * at this step we will initialize Koin related code to be able to use it in out testing.
      */
-//    @Before
-//    fun init() {
-//        stopKoin()//stop the original app koin
-//        appContext = getApplicationContext()
-//        val myModule = module {
-//            viewModel {
-//                RemindersListViewModel(
-//                    appContext,
-//                    get() as ReminderDataSource
-//                )
-//            }
-//            single {
-//                SaveReminderViewModel(
-//                    appContext,
-//                    get() as ReminderDataSource
-//                )
-//            }
-//            single { RemindersLocalRepository(get()) as ReminderDataSource }
-//            single { LocalDB.createRemindersDao(appContext) }
-//        }
-//        //declare a new koin module
-//        startKoin {
-//            modules(listOf(myModule))
-//        }
-//        //Get our real repository
-//        repository = get()
-//
-//        //clear the data to start fresh
-//        runBlocking {
-//            repository.deleteAllReminders()
-//        }
-//
-//    }
+    @Before
+    fun init() {
+        //stop the original app koin
+        stopKoin()
+        appContext = getApplicationContext()
+        val myModule = module {
+            viewModel {
+                RemindersListViewModel(
+                    appContext,
+                    get() as ReminderDataSource
+                )
+            }
+            single {
+                SaveReminderViewModel(
+                    appContext,
+                    get() as ReminderDataSource
+                )
+            }
+            single { RemindersLocalRepository(get()) as ReminderDataSource }
+            single { LocalDB.createRemindersDao(appContext) }
+        }
+        //declare a new koin module
+        startKoin {
+            modules(listOf(myModule))
+        }
+        //Get our real repository
+        repository = get()
+
+        //clear the data to start fresh
+        runBlocking {
+            repository.deleteAllReminders()
+        }
+
+    }
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
@@ -120,7 +126,6 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
     fun unregisterIdlingResources() {
         IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
-//        stopKoin()
     }
 
 
@@ -134,8 +139,13 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
     }
 
 
+    /*This test will fail on API Level 30+
+    * This is a known issue:
+    * https://github.com/android/android-test/issues/803
+    * */
+
     @Test
-    fun e2e_saveAReminder() {
+    fun e2e_saveAReminder_completeJourney() {
 
         val activity = launch(RemindersActivity::class.java)
 
@@ -146,10 +156,8 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
         onView(withId(R.id.selectLocation)).perform(click())
 
         SystemClock.sleep(5000)
-//        uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)),5000L)
 
-        onView(withId(R.id.map)).perform(longClick())
-//        SystemClock.sleep(2000)
+
         onView(withId(R.id.map)).perform(longClick())
         onView(withId(R.id.map)).perform(click())
 
@@ -162,13 +170,11 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
 
         viewWithId(R.id.saveReminder).click()
 
-//        uiDevice.wait(Until.hasObject(By.clazz(Toast::class.java)), 5000L)
-
-
-        onView(withText(R.string.reminder_saved)).inRoot(
+        viewWithText(R.string.reminder_saved).inRoot(
             withDecorView(
                 not(
-                    `is`(
+                    `is`
+                        (
                         getActivity(activity)?.window?.decorView
                     )
                 )
@@ -179,6 +185,7 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
             )
         )
 
+        SystemClock.sleep(2000)
 
         viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText(remindertitle))))
 
@@ -191,11 +198,7 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
         uiDevice.wait(Until.hasObject(By.text(remindertitle)), 2000)
         uiDevice.findObject(UiSelector().textContains(remindertitle)).clickAndWaitForNewWindow()
 
-
-        SystemClock.sleep(2000)
-
         onView(withText(remindertitle)).check(matches(isDisplayed()))
-
 
     }
 
@@ -272,13 +275,41 @@ class RemindersActivityTest {// Extended Koin Test - embed autoclose @after meth
 
         viewWithId(R.id.selectLocation).perform(click())
 
-        uiDevice.wait(Until.hasObject(By.clazz(Snackbar::class.java)), 2000L)
-
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.selection_location_message)))
 
         activityScenarioRule.close()
     }
 
+    @Test
+    fun e2e_selectLocation_clickSaveWithoutChoosingPoi_resultToastAppears() {
+        val activity = launch(RemindersActivity::class.java)
 
+        dataBindingIdlingResource.monitorActivity(activity)
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+
+        onView(withId(R.id.selectLocation)).perform(click())
+
+        SystemClock.sleep(5000)
+
+        onView(withId(R.id.saveBtn)).click()
+
+        viewWithText(R.string.selection_location_message).inRoot(
+            withDecorView(
+                not(
+                    `is`
+                        (
+                        getActivity(activity)?.window?.decorView
+                    )
+                )
+            )
+        ).check(
+            matches(
+                isDisplayed()
+            )
+        )
+
+        activity.close()
+    }
 }
