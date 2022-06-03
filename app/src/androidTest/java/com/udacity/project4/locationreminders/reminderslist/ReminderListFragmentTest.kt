@@ -150,12 +150,13 @@ class ReminderListFragmentTest  : KoinTest {
     fun checkReminderIsNotFound_showsSnackBar() = runBlocking{
 
         fakeDataSource.setShouldReturnError(true)
-        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
-        dataBindingIdlingResource.monitorFragment(scenario)
 
         val remindersListViewModel = RemindersListViewModel(appContext,fakeDataSource)
 
         remindersListViewModel.loadReminders()
+
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
 
         SystemClock.sleep(1000)
     }
