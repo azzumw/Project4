@@ -16,6 +16,10 @@ class FakeDataSource() : ReminderDataSource {
     }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
+        if (shouldReturnError) {
+            return Result.Error("Reminders not found!")
+        }
+
         return Result.Success(remindersServiceData.values.toList())
     }
 

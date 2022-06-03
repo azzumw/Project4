@@ -18,6 +18,7 @@ import androidx.test.filters.MediumTest
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.data.local.FakeDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
@@ -50,6 +51,7 @@ class ReminderListFragmentTest  : KoinTest {
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
+    private lateinit var fakeDataSource: FakeDataSource
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     //    TODO: add testing for the error messages.
@@ -89,6 +91,11 @@ class ReminderListFragmentTest  : KoinTest {
         runBlocking {
             repository.deleteAllReminders()
         }
+    }
+
+    @Before
+    fun setup(){
+        fakeDataSource = FakeDataSource()
     }
 
     @Before
@@ -141,17 +148,13 @@ class ReminderListFragmentTest  : KoinTest {
 
     @Test
     fun checkReminderIsNotFound_showsSnackBar() = runBlocking{
-        val reminder =
-            ReminderDTO("Tesco", "", "East Road", 51.0, 51.0, "id1")
 
-        repository.saveReminder(reminder)
-        repository.deleteAllReminders()
-
+        fakeDataSource.setShouldReturnError(true)
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(scenario)
 
         repository.getReminder("id1")
-//        viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText("Tesco"))))
+
         SystemClock.sleep(1000)
     }
 }
