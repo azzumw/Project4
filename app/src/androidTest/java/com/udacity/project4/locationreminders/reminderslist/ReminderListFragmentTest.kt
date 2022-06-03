@@ -2,6 +2,7 @@ package com.udacity.project4.locationreminders.reminderslist
 
 import android.app.Application
 import android.os.Bundle
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -17,6 +18,9 @@ import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.FakeDataSource
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Rule
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +36,8 @@ class ReminderListFragmentTest {
     //    TODO: test the displayed data on the UI.
 //    TODO: add testing for the error messages.
 
+    @get:Rule
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun clickAddReminderFab_navigateToSaveReminder() {
@@ -62,7 +68,7 @@ class ReminderListFragmentTest {
         val reminder =ReminderDataItem("Tesco","","East Road",51.0,51.0,"id1")
         saveReminderViewModel.saveReminder(reminder)
 
-//        val scenario = launchFragmentInContainer<ReminderListFragment>()
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
 
     }
 }

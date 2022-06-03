@@ -29,6 +29,7 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.android.ext.android.inject
 import java.util.*
+import kotlin.properties.Delegates
 
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
@@ -39,7 +40,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
 
     private lateinit var map: GoogleMap
-    private var isPoiSelected = false
+    private var isPoiSelected by Delegates.notNull<Boolean>()
     private lateinit var selectedPoi: PointOfInterest
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -98,7 +99,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(gMap: GoogleMap) {
+        isPoiSelected = false
+
         map = gMap
+
+        enableMyLocation()
 
         setMapStyle(map)
         setPoiClick(map)
@@ -106,7 +111,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         showSnackBar(getString(R.string.selection_location_message))
 
-        enableMyLocation()
+
     }
 
     private fun setMapLongClick(googleMap:GoogleMap) {
@@ -129,9 +134,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             googleMap.addMarker(marker)
 
             selectedPoi = PointOfInterest(it,marker.title,marker.title)
+            isPoiSelected = true
         }
-
-        isPoiSelected = true
 
     }
 
@@ -203,9 +207,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
                 if (task.isSuccessful) {
                     // Set the map's camera position to the current location of the device.
-                    val location: Location? = task.result
+                    val location: Location = task.result!!
                     val currentLatLng = LatLng(
-                        location!!.latitude,
+                        location.latitude,
                         location.longitude
                     )
                     val update = CameraUpdateFactory.newLatLngZoom(
@@ -263,5 +267,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             true
         }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isPoiSelected = false
     }
 }
