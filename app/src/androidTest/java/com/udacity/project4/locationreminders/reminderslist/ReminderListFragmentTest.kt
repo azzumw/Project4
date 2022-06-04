@@ -52,9 +52,9 @@ import org.mockito.Mockito.verify
 @RunWith(AndroidJUnit4::class)
 class ReminderListFragmentTest  : KoinTest {
 
-    private lateinit var repository: ReminderDataSource
+    private lateinit var repository: FakeDataSource
     private lateinit var appContext: Application
-    private lateinit var fakeDataSource: FakeDataSource
+    private  lateinit var  fakeDataSource : FakeDataSource
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     //    TODO: add testing for the error messages.
@@ -62,42 +62,43 @@ class ReminderListFragmentTest  : KoinTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    @Before
-    fun init() {
-        //stop the original app koin
-        stopKoin()
-        appContext = ApplicationProvider.getApplicationContext()
-        val myModule = module {
-            viewModel {
-                RemindersListViewModel(
-                    appContext,
-                    get() as ReminderDataSource
-                )
-            }
-            single {
-                SaveReminderViewModel(
-                    appContext,
-                    get() as ReminderDataSource
-                )
-            }
-            single { RemindersLocalRepository(get()) as ReminderDataSource }
-            single { LocalDB.createRemindersDao(appContext) }
-        }
-        //declare a new koin module
-        startKoin {
-            modules(listOf(myModule))
-        }
-        //Get our real repository
-        repository = get()
-
-        //clear the data to start fresh
-        runBlocking {
-            repository.deleteAllReminders()
-        }
-    }
+//   @Before
+//    fun init() {
+//        //stop the original app koin
+//        stopKoin()
+//        appContext = ApplicationProvider.getApplicationContext()
+//        val myModule = module {
+//            viewModel {
+//                RemindersListViewModel(
+//                    appContext,
+//                    get() as ReminderDataSource
+//                )
+//            }
+//            single {
+//                SaveReminderViewModel(
+//                    appContext,
+//                    get() as ReminderDataSource
+//                )
+//            }
+//            single { RemindersLocalRepository(get()) as ReminderDataSource }
+//            single { LocalDB.createRemindersDao(appContext) }
+//        }
+//        //declare a new koin module
+//        startKoin {
+//            modules(listOf(myModule))
+//        }
+//        //Get our real repository
+//        repository = get()
+//
+//        //clear the data to start fresh
+//        runBlocking {
+//            repository.deleteAllReminders()
+//        }
+//    }
 
     @Before
     fun setup(){
+        repository = FakeDataSource()
         fakeDataSource = FakeDataSource()
     }
 
@@ -162,9 +163,9 @@ class ReminderListFragmentTest  : KoinTest {
         remindersListViewModel.loadReminders()
         remindersListViewModel.showSnackBar.getOrAwaitValue()
 
-        val error = "Reminder not found!"
-        val actError = fakeDataSource.getReminder("id1") as Result.Error
-        assertThat(actError.message,`is`(error))
+        val error = "Reminders not found!"
+        val actError = remindersListViewModel.showSnackBar.value
+        assertThat(actError,`is`(error))
 
         SystemClock.sleep(1000)
     }
