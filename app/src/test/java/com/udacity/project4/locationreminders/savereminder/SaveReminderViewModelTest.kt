@@ -303,11 +303,11 @@ class SaveReminderViewModelTest {
 
     @Test
     fun check_loading() {
-        //Given - a reminder is created
+        //GIVEN - a reminder is created
         val reminder1 = ReminderDTO("reminder1", "", "Home", 51.0, -51.0, "home")
 
         mainCoroutineRule.pauseDispatcher()
-        //When - saveReminder is called
+        //WHEN - saveReminder is called
         saveReminderViewModel.saveReminder(
             ReminderDataItem(
                 reminder1.title,
@@ -319,9 +319,13 @@ class SaveReminderViewModelTest {
             )
         )
 
+        //THEN - assert that the progress indicator is shown.
         assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), `is`(true))
+
+        //Execute pending coroutines actions.
         mainCoroutineRule.resumeDispatcher()
 
+        //THEN - assert that the progress indicator is hidden.
         assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), `is`(false))
     }
 

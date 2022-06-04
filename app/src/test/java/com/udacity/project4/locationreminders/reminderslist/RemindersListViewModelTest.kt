@@ -5,6 +5,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.util.getOrAwaitValue
@@ -32,6 +33,9 @@ class RemindersListViewModelTest {
     //For livedata
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
 
     @Before
     fun setup() {
@@ -84,6 +88,24 @@ class RemindersListViewModelTest {
 
         //showloading is false
         assertThat(remindersListViewModel.showLoading.value, `is`(false))
+    }
+
+    @Test
+    fun check_loading() {
+        //GIVEN - erm... lol
+        mainCoroutineRule.pauseDispatcher()
+
+        //WHEN - reminders are loaded
+        remindersListViewModel.loadReminders()
+
+
+        //THEN - assert that the loading indicator is shown
+        assertThat(remindersListViewModel.showLoading.getOrAwaitValue(), `is`(true))
+        mainCoroutineRule.resumeDispatcher()
+
+        //THEN - assert that the loading indicator is hidden
+        assertThat(remindersListViewModel.showLoading.getOrAwaitValue(), `is`(false))
+
     }
 
     @After
