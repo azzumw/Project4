@@ -121,9 +121,10 @@ class ReminderListFragmentTest : KoinTest {
     @Test
     fun checkReminderIsNotFound_showsSnackBar() = runBlocking {
 
+        //GIVEN  - no data exist, make the repository return error
         (repository as FakeDataSource).setShouldReturnError(true)
 
-        val remindersListViewModel = RemindersListViewModel(appContext, repository)
+        val remindersListViewModel = get<RemindersListViewModel>()
 
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
         dataBindingIdlingResource.monitorFragment(scenario)
