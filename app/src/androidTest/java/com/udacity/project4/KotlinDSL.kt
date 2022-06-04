@@ -14,6 +14,7 @@ const val reminderDesc = "Description for Reminder 1"
 
 fun viewWithId(id:Int):ViewInteraction = Espresso.onView(withId(id))
 fun viewWithText(textId:Int):ViewInteraction = Espresso.onView(withText(textId))
+fun viewWithText(text:String):ViewInteraction = Espresso.onView(withText(text))
 
 fun ViewInteraction.type(text:String):ViewInteraction = perform(ViewActions.typeText(text),closeSoftKeyboard())
 
