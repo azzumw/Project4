@@ -115,6 +115,7 @@ class ReminderListFragment : BaseFragment() {
             R.id.logout -> {
                 //log user out, nav to Login screen
                 AuthUI.getInstance().signOut(requireContext())
+                Log.e(TAG,"Logged out")
                 return true
             }
         }

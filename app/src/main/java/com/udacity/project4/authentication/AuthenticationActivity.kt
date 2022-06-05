@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
@@ -51,8 +50,11 @@ class AuthenticationActivity : AppCompatActivity() {
                     "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.photoUrl}!"
                 )
                 val intent = Intent(this, RemindersActivity::class.java)
-
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                finish()
                 startActivity(intent)
+
+
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
@@ -61,6 +63,7 @@ class AuthenticationActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun launchSignInFlow() {
 
@@ -74,6 +77,8 @@ class AuthenticationActivity : AppCompatActivity() {
             // This is where you can provide more ways for users to register and
             // sign in.
         )
+
+
 
         startActivityForResult(
             AuthUI.getInstance()

@@ -42,11 +42,14 @@ class ReminderDescriptionActivity : AppCompatActivity() {
 
         binding.okayBtn.setOnClickListener {
            val intent = Intent(this,RemindersActivity::class.java)
+//            val intent = Intent(this, RemindersActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            finish()
             startActivity(intent)
         }
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
+       finish()
     }
 }
