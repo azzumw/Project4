@@ -204,19 +204,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             map.isMyLocationEnabled = true
 
             val locationResult: Task<Location> = fusedLocationClient.lastLocation
-            locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+            locationResult.addOnCompleteListener(OnCompleteListener<Location?> {
+                    task ->
                 if (task.isSuccessful) {
                     // Set the map's camera position to the current location of the device.
-                    val location: Location = task.result!!
-                    val currentLatLng = LatLng(
-                        location.latitude,
-                        location.longitude
-                    )
-                    val update = CameraUpdateFactory.newLatLngZoom(
-                        currentLatLng,
-                        18f
-                    )
-                    map.animateCamera(update)
+                        if(task.result!=null){
+                            val location: Location = task.result!!
+                            val currentLatLng = LatLng(
+                                location.latitude,
+                                location.longitude
+                            )
+                            val update = CameraUpdateFactory.newLatLngZoom(
+                                currentLatLng,
+                                18f
+                            )
+                            map.animateCamera(update)
+                        }else{
+
+                        }
+
                 }
             })
 

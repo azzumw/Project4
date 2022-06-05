@@ -51,7 +51,8 @@ import org.koin.test.get
 @SdkSuppress(minSdkVersion = 18)
 @LargeTest
 //END TO END test to black box test the app
-class RemindersActivityTest : KoinTest{// Extended Koin Test - embed autoclose @after method to close Koin after every test
+class RemindersActivityTest :
+    KoinTest {// Extended Koin Test - embed autoclose @after method to close Koin after every test
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
@@ -144,6 +145,8 @@ class RemindersActivityTest : KoinTest{// Extended Koin Test - embed autoclose @
     * https://github.com/android/android-test/issues/803
     * */
 
+    //Ensure location is set manually,
+    // going to Google maps  - updating the location
     @Test
     fun e2e_saveAReminder_completeJourney() {
 

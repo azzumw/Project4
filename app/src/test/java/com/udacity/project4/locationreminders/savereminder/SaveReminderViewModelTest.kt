@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PointOfInterest
 import com.udacity.project4.R
 import com.udacity.project4.base.NavigationCommand
+import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
@@ -40,6 +41,9 @@ class SaveReminderViewModelTest {
     //For livedata
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
 
     @Before
     fun setup() {
@@ -295,6 +299,34 @@ class SaveReminderViewModelTest {
         assertThat(saveReminderViewModel.reminderDescription.value, nullValue())
         assertThat(saveReminderViewModel.latitude.value, nullValue())
         assertThat(saveReminderViewModel.longitude.value, nullValue())
+    }
+
+    @Test
+    fun check_loading() {
+        //GIVEN - a reminder is created
+        val reminder1 = ReminderDTO("reminder1", "", "Home", 51.0, -51.0, "home")
+
+        mainCoroutineRule.pauseDispatcher()
+        //WHEN - saveReminder is called
+        saveReminderViewModel.saveReminder(
+            ReminderDataItem(
+                reminder1.title,
+                reminder1.description,
+                reminder1.location,
+                reminder1.latitude,
+                reminder1.longitude,
+                reminder1.id
+            )
+        )
+
+        //THEN - assert that the progress indicator is shown.
+        assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), `is`(true))
+
+        //Execute pending coroutines actions.
+        mainCoroutineRule.resumeDispatcher()
+
+        //THEN - assert that the progress indicator is hidden.
+        assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), `is`(false))
     }
 
     @After
