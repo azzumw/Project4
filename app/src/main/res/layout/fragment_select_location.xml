@@ -17,7 +17,6 @@
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:clipToPadding="true"
             android:layout_height="wrap_content"
             android:id="@+id/myCoordinatorLayout">
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
