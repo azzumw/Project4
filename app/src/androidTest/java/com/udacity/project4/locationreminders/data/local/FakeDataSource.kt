@@ -8,7 +8,7 @@ import kotlinx.coroutines.runBlocking
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource() : ReminderDataSource {
 
-    var remindersServiceData : LinkedHashMap<String,ReminderDTO> = LinkedHashMap()
+    var remindersServiceData: LinkedHashMap<String, ReminderDTO> = LinkedHashMap()
     private var shouldReturnError = false
 
     fun setShouldReturnError(error: Boolean) {
@@ -43,8 +43,8 @@ class FakeDataSource() : ReminderDataSource {
         remindersServiceData.remove(id)
     }
 
-    fun addReminders(vararg reminders:ReminderDTO){
-        for (reminder in reminders){
+    fun addReminders(vararg reminders: ReminderDTO) {
+        for (reminder in reminders) {
             runBlocking { saveReminder(reminder) }
         }
     }

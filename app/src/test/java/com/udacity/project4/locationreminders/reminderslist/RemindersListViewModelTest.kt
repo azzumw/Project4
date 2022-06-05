@@ -98,7 +98,6 @@ class RemindersListViewModelTest {
         //WHEN - reminders are loaded
         remindersListViewModel.loadReminders()
 
-
         //THEN - assert that the loading indicator is shown
         assertThat(remindersListViewModel.showLoading.getOrAwaitValue(), `is`(true))
         mainCoroutineRule.resumeDispatcher()
