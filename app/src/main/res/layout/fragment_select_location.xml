@@ -15,6 +15,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:clipToPadding="true"
+            android:layout_height="wrap_content"
+            android:id="@+id/myCoordinatorLayout">
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
         <fragment
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
