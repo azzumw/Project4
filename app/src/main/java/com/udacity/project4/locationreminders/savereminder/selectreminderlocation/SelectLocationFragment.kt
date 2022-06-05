@@ -74,7 +74,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.saveBtn.setOnClickListener {
 
             if (isPoiSelected){
@@ -160,16 +159,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     private fun showSnackBar(text: String) {
         //work on the position of Snack bar
-        val snackbar = Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT)
+        val viewPos = binding.myCoordinatorLayout
+        val snackbar = Snackbar.make(viewPos, text, Snackbar.LENGTH_SHORT)
         snackbar.show()
-        snackbar.isGestureInsetBottomIgnored = true
 
-//        val snack: Snackbar = Snackbar.make(binding.root, text, Snackbar.LENGTH_LONG)
-//        val view = snack.view
-//        val params = binding.root.layoutParams as LinearLayout.LayoutParams
-//        params.gravity = Gravity.TOP
-//        view.layoutParams = params
-//        snack.show()
     }
 
     private fun setMapStyle(googleMap: GoogleMap) {
