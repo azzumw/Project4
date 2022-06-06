@@ -71,6 +71,9 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.selectLocation.setOnClickListener {
             //            Navigate to another fragment to get the user location
+
+
+
             _viewModel.navigationCommand.value =
                 NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
         }
@@ -89,6 +92,18 @@ class SaveReminderFragment : BaseFragment() {
                 latitude = latitude,
                 longitude = longitude
             )
+
+            /**
+             * First check if both the required permissions (foreground and background) have been granted.
+             * If there is any ungranted permission, request it properly.
+             * If all the required permissions have been granted, then we should proceed to check if the device location is on.
+             * If the device location is not on, show the location settings dialog and ask the user to enable it.
+             * We should automatically attempt to add a Geofence ONLY IF we are certain that the required permissions
+             * have been granted and the device location is on.
+             * */
+
+            //request background service
+
 
             if(_viewModel.validateAndSaveReminder(reminderDataItem)){
                 createGeofenceAndRequestAndAdd(reminderDataItem)
