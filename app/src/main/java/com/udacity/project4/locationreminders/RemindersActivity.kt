@@ -49,7 +49,7 @@ class RemindersActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        checkPermissionsAndStartGeofencing()
+//        checkPermissionsAndStartGeofencing()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

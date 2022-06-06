@@ -212,10 +212,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                                 18f
                             )
                             map.animateCamera(update)
-                        }else{
-
                         }
-
                 }
             })
 
@@ -228,6 +225,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             )
         }
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
