@@ -25,6 +25,7 @@ import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 //import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 //import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.android.ext.android.inject
@@ -59,7 +60,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.lifecycleOwner = this
 
         setHasOptionsMenu(true)
-//        setDisplayHomeAsUpEnabled(true)
+        setDisplayHomeAsUpEnabled(true)
 
 
 //        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -106,12 +107,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map = gMap
 //        enableMyLocation()
 
-        showMyLocation(map)
-        setMapStyle(map)
-        setPoiClick(map)
-        setMapLongClick(map)
+        //home lat,long
+        val lat = 51.529721151342464
+        val longitude = -0.08842122330021063
+        val zoomlvl = 1f
 
-        showSnackBar(getString(R.string.selection_location_message))
+        val home = LatLng(lat,longitude)
+        map.addMarker(MarkerOptions().position(home).title("Marker on Provost Street"))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoomlvl))
+
+//        showMyLocation(map)
+//        setMapStyle(map)
+//        setPoiClick(map)
+//        setMapLongClick(map)
+
+//        showSnackBar(getString(R.string.selection_location_message))
 
     }
 
@@ -248,20 +258,20 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        // Check if location permissions are granted and if so enable the
-        // location data layer.
-        if (requestCode == REQUEST_PERMISSION_LOCATION) {
-            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                enableMyLocation()
-            }
-        }
-    }
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        // Check if location permissions are granted and if so enable the
+//        // location data layer.
+//        if (requestCode == REQUEST_PERMISSION_LOCATION) {
+//            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+//                enableMyLocation()
+//            }
+//        }
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
