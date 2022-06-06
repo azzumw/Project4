@@ -100,28 +100,23 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    @SuppressLint("MissingPermission")
+//    @SuppressLint("MissingPermission")
     override fun onMapReady(gMap: GoogleMap) {
-        isPoiSelected = false
+//        isPoiSelected = false
+
 
         map = gMap
 //        enableMyLocation()
 
-        //home lat,long
-        val lat = 51.529721151342464
-        val longitude = -0.08842122330021063
-        val zoomlvl = 1f
 
-        val home = LatLng(lat,longitude)
-        map.addMarker(MarkerOptions().position(home).title("Marker on Provost Street"))
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoomlvl))
 
-//        showMyLocation(map)
-//        setMapStyle(map)
-//        setPoiClick(map)
-//        setMapLongClick(map)
+        showMyLocation(map)
+        setMapStyle(map)
+        setPoiClick(map)
+        setMapLongClick(map)
 
-//        showSnackBar(getString(R.string.selection_location_message))
+        showSnackBar(getString(R.string.selection_location_message))
+
 
     }
 
@@ -248,13 +243,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //            })
 
 
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_PERMISSION_LOCATION
-            )
-        }
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                requireActivity(),
+//                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+//                REQUEST_PERMISSION_LOCATION
+//            )
+//        }
+    }
     }
 
 
@@ -272,6 +268,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //            }
 //        }
 //    }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
