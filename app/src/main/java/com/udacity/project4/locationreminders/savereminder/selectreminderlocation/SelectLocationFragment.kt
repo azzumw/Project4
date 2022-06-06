@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
@@ -11,6 +12,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
@@ -63,7 +65,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setDisplayHomeAsUpEnabled(true)
 
 
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
@@ -100,32 +102,24 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-//    @SuppressLint("MissingPermission")
+    //    @SuppressLint("MissingPermission")
     override fun onMapReady(gMap: GoogleMap) {
-//        isPoiSelected = false
+        isPoiSelected = false
 
 
         map = gMap
-//        enableMyLocation()
+        enableMyLocation()
 
 
-
-        showMyLocation(map)
         setMapStyle(map)
         setPoiClick(map)
         setMapLongClick(map)
 
         showSnackBar(getString(R.string.selection_location_message))
-
-
     }
 
-    fun showMyLocation(gmap:GoogleMap){
-        val currentLatLng = LatLng(
-            51.529601, -0.088411
-        )
-
-        gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,18f))
+    fun showMyLocation(gmap: GoogleMap, latLng: LatLng) {
+        gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
     }
 
     private fun setMapLongClick(googleMap: GoogleMap) {
@@ -211,63 +205,59 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
 
-            val currentLatLng = LatLng(
-                51.529601, -0.088411
-            )
-
+//            val currentLatLng = LatLng(
+//                51.529601, -0.088411
+//            )
 //            val update = CameraUpdateFactory.newLatLngZoom(
 //                currentLatLng,
 //                18f
 //            )
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,18f))
+//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,18f))
 //            map.moveCamera(update)
 
-//            val locationResult: Task<Location> = fusedLocationClient.lastLocation
-//            locationResult.addOnCompleteListener(OnCompleteListener<Location?> {
-//                    task ->
-//                if (task.isSuccessful) {
-//                    // Set the map's camera position to the current location of the device.
-//                        if(task.result!=null){
-//                            val location: Location = task.result!!
-//                            val currentLatLng = LatLng(
-//                                location.latitude,
-//                                location.longitude
-//                            )
-//                            val update = CameraUpdateFactory.newLatLngZoom(
-//                                currentLatLng,
-//                                18f
-//                            )
-//                            map.animateCamera(update)
-//                        }
-//                }
-//            })
+            val locationResult: Task<Location> = fusedLocationClient.lastLocation
+            locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+                if (task.isSuccessful) {
+                    // Set the map's camera position to the current location of the device.
+                    if (task.result != null) {
+                        val location: Location = task.result!!
+                        val currentLatLng = LatLng(
+                            location.latitude,
+                            location.longitude
+                        )
+                        val update = CameraUpdateFactory.newLatLngZoom(
+                            currentLatLng,
+                            18f
+                        )
+                        map.animateCamera(update)
+                    }
+                }
+            })
 
 
-//        } else {
-//            ActivityCompat.requestPermissions(
-//                requireActivity(),
-//                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-//                REQUEST_PERMISSION_LOCATION
-//            )
-//        }
-    }
+        } else {
+             requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_PERMISSION_LOCATION
+            )
+        }
     }
 
 
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        // Check if location permissions are granted and if so enable the
-//        // location data layer.
-//        if (requestCode == REQUEST_PERMISSION_LOCATION) {
-//            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-//                enableMyLocation()
-//            }
-//        }
-//    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        // Check if location permissions are granted and if so enable the
+        // location data layer.
+        if (requestCode == REQUEST_PERMISSION_LOCATION) {
+            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                enableMyLocation()
+            }
+        }
+    }
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
