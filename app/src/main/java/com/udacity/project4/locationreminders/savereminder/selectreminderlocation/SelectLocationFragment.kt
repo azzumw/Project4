@@ -25,8 +25,8 @@ import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import com.udacity.project4.utils.wrapEspressoIdlingResource
+//import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+//import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.android.ext.android.inject
 import java.util.*
 import kotlin.properties.Delegates
@@ -59,15 +59,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.lifecycleOwner = this
 
         setHasOptionsMenu(true)
-        setDisplayHomeAsUpEnabled(true)
+//        setDisplayHomeAsUpEnabled(true)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
-        wrapEspressoIdlingResource {
-            mapFragment.getMapAsync(this)
-        }
+        mapFragment.getMapAsync(this)
 
         return binding.root
     }
@@ -76,10 +75,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
         binding.saveBtn.setOnClickListener {
 
-            if (isPoiSelected){
+            if (isPoiSelected) {
                 onLocationSelected()
-            }else{
-                Toast.makeText(context,getString(R.string.selection_location_message),Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    context,
+                    getString(R.string.selection_location_message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -92,7 +95,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         findNavController().apply {
             navigate(R.id.saveReminderFragment)
-            popBackStack(R.id.selectLocationFragment,true)
+            popBackStack(R.id.selectLocationFragment, true)
         }
     }
 
@@ -101,19 +104,26 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         isPoiSelected = false
 
         map = gMap
+//        enableMyLocation()
 
-        enableMyLocation()
-
+        showMyLocation(map)
         setMapStyle(map)
         setPoiClick(map)
         setMapLongClick(map)
 
         showSnackBar(getString(R.string.selection_location_message))
 
-
     }
 
-    private fun setMapLongClick(googleMap:GoogleMap) {
+    fun showMyLocation(gmap:GoogleMap){
+        val currentLatLng = LatLng(
+            51.529601, -0.088411
+        )
+
+        gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,18f))
+    }
+
+    private fun setMapLongClick(googleMap: GoogleMap) {
         isPoiSelected = false
         googleMap.setOnMapLongClickListener {
             googleMap.clear()
@@ -132,7 +142,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
             googleMap.addMarker(marker)
 
-            selectedPoi = PointOfInterest(it,marker.title,marker.title)
+            selectedPoi = PointOfInterest(it, marker.title, marker.title)
             isPoiSelected = true
         }
 
@@ -196,25 +206,36 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
 
-            val locationResult: Task<Location> = fusedLocationClient.lastLocation
-            locationResult.addOnCompleteListener(OnCompleteListener<Location?> {
-                    task ->
-                if (task.isSuccessful) {
-                    // Set the map's camera position to the current location of the device.
-                        if(task.result!=null){
-                            val location: Location = task.result!!
-                            val currentLatLng = LatLng(
-                                location.latitude,
-                                location.longitude
-                            )
-                            val update = CameraUpdateFactory.newLatLngZoom(
-                                currentLatLng,
-                                18f
-                            )
-                            map.animateCamera(update)
-                        }
-                }
-            })
+            val currentLatLng = LatLng(
+                51.529601, -0.088411
+            )
+
+//            val update = CameraUpdateFactory.newLatLngZoom(
+//                currentLatLng,
+//                18f
+//            )
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,18f))
+//            map.moveCamera(update)
+
+//            val locationResult: Task<Location> = fusedLocationClient.lastLocation
+//            locationResult.addOnCompleteListener(OnCompleteListener<Location?> {
+//                    task ->
+//                if (task.isSuccessful) {
+//                    // Set the map's camera position to the current location of the device.
+//                        if(task.result!=null){
+//                            val location: Location = task.result!!
+//                            val currentLatLng = LatLng(
+//                                location.latitude,
+//                                location.longitude
+//                            )
+//                            val update = CameraUpdateFactory.newLatLngZoom(
+//                                currentLatLng,
+//                                18f
+//                            )
+//                            map.animateCamera(update)
+//                        }
+//                }
+//            })
 
 
         } else {
