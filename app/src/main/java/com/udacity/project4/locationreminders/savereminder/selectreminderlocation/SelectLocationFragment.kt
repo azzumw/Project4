@@ -134,7 +134,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         return ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        ) == PERMISSION_GRANTED
     }
 
     @SuppressLint("MissingPermission")
@@ -162,7 +162,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             })
 
 
-        } else {
+        }
+        else {
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_PERMISSION_LOCATION
@@ -180,30 +181,30 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // Check if location permissions are granted and if so enable the
         // location data layer.
         if (requestCode == REQUEST_PERMISSION_LOCATION) {
-            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
                 enableMyLocation()
             } else {
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    REQUEST_PERMISSION_LOCATION
-                )
-//                Snackbar.make(
-//                activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
-//                R.string.permission_denied_explanation,
-//                Snackbar.LENGTH_INDEFINITE
-//            )
-//                .setAction(R.string.settings) {
-//                    startActivity(Intent().apply {
-//                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-//                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-//                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//                    })
-//                }.show()
+//                requestPermissions(
+//                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+//                    REQUEST_PERMISSION_LOCATION)
+                Snackbar.make(
+                activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
+                R.string.permission_denied_explanation,
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(R.string.settings) {
+                    startActivity(Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    })
+                }.show()
 //                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
 //                    REQUEST_PERMISSION_LOCATION)
             }
         }
     }
+
 
     private fun setMapLongClick(googleMap: GoogleMap) {
         isPoiSelected = false
