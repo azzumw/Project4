@@ -3,14 +3,18 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
@@ -23,6 +27,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
+import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
@@ -70,6 +75,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
         mapFragment.getMapAsync(this)
+
 
         return binding.root
     }
@@ -205,16 +211,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
 
-//            val currentLatLng = LatLng(
-//                51.529601, -0.088411
-//            )
-//            val update = CameraUpdateFactory.newLatLngZoom(
-//                currentLatLng,
-//                18f
-//            )
-//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng,18f))
-//            map.moveCamera(update)
-
             val locationResult: Task<Location> = fusedLocationClient.lastLocation
             locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
                 if (task.isSuccessful) {
@@ -236,12 +232,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
         } else {
-             requestPermissions(
+
+            requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_PERMISSION_LOCATION
             )
         }
     }
+
+
 
 
     override fun onRequestPermissionsResult(
@@ -255,6 +254,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (requestCode == REQUEST_PERMISSION_LOCATION) {
             if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 enableMyLocation()
+            }else{
+                Snackbar.make(
+                activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
+                R.string.permission_denied_explanation,
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(R.string.settings) {
+                    startActivity(Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    })
+                }.show()
+//                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+//                    REQUEST_PERMISSION_LOCATION)
             }
         }
     }
