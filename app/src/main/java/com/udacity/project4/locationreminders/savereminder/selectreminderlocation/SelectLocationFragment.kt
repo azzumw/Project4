@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Resources
 import android.location.Location
 import android.net.Uri
@@ -82,6 +83,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.saveBtn.setOnClickListener {
 
             if (isPoiSelected) {
@@ -108,14 +110,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    //    @SuppressLint("MissingPermission")
+
+    @SuppressLint("MissingPermission")
     override fun onMapReady(gMap: GoogleMap) {
         isPoiSelected = false
 
-
         map = gMap
-        enableMyLocation()
 
+        enableMyLocation()
 
         setMapStyle(map)
         setPoiClick(map)
@@ -126,6 +128,81 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     fun showMyLocation(gmap: GoogleMap, latLng: LatLng) {
         gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
+    }
+
+    private fun isPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableMyLocation() {
+        if (isPermissionGranted()) {
+            map.isMyLocationEnabled = true
+
+            val locationResult: Task<Location> = fusedLocationClient.lastLocation
+            locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+                if (task.isSuccessful) {
+                    // Set the map's camera position to the current location of the device.
+                    if (task.result != null) {
+                        val location: Location = task.result!!
+                        val currentLatLng = LatLng(
+                            location.latitude,
+                            location.longitude
+                        )
+                        val update = CameraUpdateFactory.newLatLngZoom(
+                            currentLatLng,
+                            18f
+                        )
+                        map.animateCamera(update)
+                    }
+                }
+            })
+
+
+        } else {
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_PERMISSION_LOCATION
+            )
+        }
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        // Check if location permissions are granted and if so enable the
+        // location data layer.
+        if (requestCode == REQUEST_PERMISSION_LOCATION) {
+            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                enableMyLocation()
+            } else {
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    REQUEST_PERMISSION_LOCATION
+                )
+//                Snackbar.make(
+//                activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
+//                R.string.permission_denied_explanation,
+//                Snackbar.LENGTH_INDEFINITE
+//            )
+//                .setAction(R.string.settings) {
+//                    startActivity(Intent().apply {
+//                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+//                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+//                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//                    })
+//                }.show()
+//                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+//                    REQUEST_PERMISSION_LOCATION)
+            }
+        }
     }
 
     private fun setMapLongClick(googleMap: GoogleMap) {
@@ -196,80 +273,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         } catch (e: Resources.NotFoundException) {
             Log.e(TAG, "Can't find style. Error: ", e)
-        }
-    }
-
-    private fun isPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun enableMyLocation() {
-        if (isPermissionGranted()) {
-            map.isMyLocationEnabled = true
-
-            val locationResult: Task<Location> = fusedLocationClient.lastLocation
-            locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
-                if (task.isSuccessful) {
-                    // Set the map's camera position to the current location of the device.
-                    if (task.result != null) {
-                        val location: Location = task.result!!
-                        val currentLatLng = LatLng(
-                            location.latitude,
-                            location.longitude
-                        )
-                        val update = CameraUpdateFactory.newLatLngZoom(
-                            currentLatLng,
-                            18f
-                        )
-                        map.animateCamera(update)
-                    }
-                }
-            })
-
-
-        } else {
-
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_PERMISSION_LOCATION
-            )
-        }
-    }
-
-
-
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        // Check if location permissions are granted and if so enable the
-        // location data layer.
-        if (requestCode == REQUEST_PERMISSION_LOCATION) {
-            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                enableMyLocation()
-            }else{
-                Snackbar.make(
-                activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
-                R.string.permission_denied_explanation,
-                Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction(R.string.settings) {
-                    startActivity(Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    })
-                }.show()
-//                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-//                    REQUEST_PERMISSION_LOCATION)
-            }
         }
     }
 
