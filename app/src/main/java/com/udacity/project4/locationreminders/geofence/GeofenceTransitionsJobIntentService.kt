@@ -108,27 +108,28 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                     geofencingClient =
                         LocationServices.getGeofencingClient(this@GeofenceTransitionsJobIntentService)
 
-                    val requestIds = mutableListOf<String>(triggeringGeofences[i].requestId)
-                    geofencingClient?.removeGeofences(requestIds)?.run {
-                        addOnSuccessListener {
-                            // Geofences removed
-                            Log.e(
-                                this.javaClass.canonicalName,
-                                "Geofence with $requestIds has been removed"
-                            )
-                        }
-                        addOnFailureListener {
-                            // Failed to remove geofences
-                            Log.e(
-                                this.javaClass.canonicalName,
-                                "Geofence with $requestIds has not been removed"
-                            )
-                        }
-                    }
-                    //remove geo fence here
+                    removeGeofences(mutableListOf(triggeringGeofences[i].requestId))
 
                 }
+            }
+        }
+    }
 
+    private fun removeGeofences(listOfGeofenceIds: MutableList<String>) {
+        geofencingClient?.removeGeofences(listOfGeofenceIds)?.run {
+            addOnSuccessListener {
+                // Geofences removed
+                Log.e(
+                    this.javaClass.canonicalName,
+                    "Geofence with $listOfGeofenceIds has been removed"
+                )
+            }
+            addOnFailureListener {
+                // Failed to remove geofences
+                Log.e(
+                    this.javaClass.canonicalName,
+                    "Geofence with $listOfGeofenceIds has not been removed"
+                )
             }
         }
     }
