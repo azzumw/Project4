@@ -24,6 +24,5 @@ import com.udacity.project4.R
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         GeofenceTransitionsJobIntentService.enqueueWork(context,intent)
-//        GeofenceTransitionsJobIntentService().setContext(context)
     }
 }

@@ -21,7 +21,6 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
     val _viewModel: SaveReminderViewModel by inject()
 
-
     private var coroutineJob: Job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + coroutineJob
@@ -43,6 +42,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                 "ACTION_GEOFENCE_EVENT"
         }
     }
+
 
 
     override fun onHandleWork(intent: Intent) {

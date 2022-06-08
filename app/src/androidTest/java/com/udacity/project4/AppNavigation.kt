@@ -86,7 +86,7 @@ class AppNavigation {
     }
 
     @Test
-    fun remindersList_to_SaveReminders_UpButton_to_remindersList(){
+    fun remindersList_to_SaveReminders_pressBack_to_remindersList(){
         //GIVEN - Reminder activity is launched
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
@@ -118,6 +118,8 @@ class AppNavigation {
 
         //WHEN - Select Location is clicked
         viewWithId(R.id.selectLocation).click()
+
+        //use uiautomator watcher
 
         //THEN - SelectLocation Screen is shown
         viewWithId(R.id.map).check(matches(isDisplayed()))
