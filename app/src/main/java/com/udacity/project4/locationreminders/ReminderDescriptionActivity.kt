@@ -44,31 +44,16 @@ class ReminderDescriptionActivity : AppCompatActivity() {
         val data = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem?
         binding.reminderDataItem = data
 
-        removeThisGeofence(data!!.id)
 
         binding.okayBtn.setOnClickListener {
-           val intent = Intent(this,RemindersActivity::class.java)
+            val intent = Intent(this, RemindersActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             finish()
             startActivity(intent)
         }
     }
 
-    private fun removeThisGeofence(id:String){
-        val list = mutableListOf(id)
-        geofencingClient?.removeGeofences(list)?.run {
-            addOnSuccessListener {
-                // Geofences removed
-                Log.e(this.javaClass.canonicalName,"Geofence with $id has been removed")
-            }
-            addOnFailureListener {
-                // Failed to remove geofences
-                Log.e(this.javaClass.canonicalName,"Geofence with $id has not been removed")
-            }
-        }
-    }
-
     override fun onBackPressed() {
-       finish()
+        finish()
     }
 }

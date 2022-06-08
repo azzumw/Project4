@@ -160,8 +160,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     }
                 }
             })
-
-
         }
         else {
             requestPermissions(
@@ -171,6 +169,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -203,6 +205,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 //                    REQUEST_PERMISSION_LOCATION)
             }
         }
+
+
     }
 
 

@@ -21,6 +21,8 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
     val _viewModel: SaveReminderViewModel by inject()
 
+    private lateinit var geofencingClient: GeofencingClient
+
     private var coroutineJob: Job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + coroutineJob
@@ -31,18 +33,18 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
         fun enqueueWork(context: Context, intent: Intent) {
             enqueueWork(
                 context,
-                GeofenceTransitionsJobIntentService::class.java, JOB_ID,
+                GeofenceTransitionsJobIntentService::class.java,
+                JOB_ID,
                 intent
             )
         }
 
-        internal object GeofencingConstants{
+        internal object GeofencingConstants {
             const val GEOFENCE_RADIUS_IN_METERS = 100f
             const val ACTION_GEOFENCE_EVENT =
                 "ACTION_GEOFENCE_EVENT"
         }
     }
-
 
 
     override fun onHandleWork(intent: Intent) {
@@ -101,8 +103,29 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                         )
                     )
 
-                    remindersLocalRepository.deleteReminder(reminderDTO.id)
 
+                    remindersLocalRepository.deleteReminder(reminderDTO.id)
+                    geofencingClient =
+                        LocationServices.getGeofencingClient(this@GeofenceTransitionsJobIntentService)
+
+                    val requestIds = mutableListOf<String>(triggeringGeofences[i].requestId)
+                    geofencingClient?.removeGeofences(requestIds)?.run {
+                        addOnSuccessListener {
+                            // Geofences removed
+                            Log.e(
+                                this.javaClass.canonicalName,
+                                "Geofence with $requestIds has been removed"
+                            )
+                        }
+                        addOnFailureListener {
+                            // Failed to remove geofences
+                            Log.e(
+                                this.javaClass.canonicalName,
+                                "Geofence with $requestIds has not been removed"
+                            )
+                        }
+                    }
+                    //remove geo fence here
 
                 }
 
