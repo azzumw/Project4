@@ -200,8 +200,9 @@ class SaveReminderFragment : BaseFragment() {
                     startActivityForResult(Intent().apply {
                         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                         data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME
-                        flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+//                        flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME
+//                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+//                        flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
                     }, REQUEST_TURN_DEVICE_LOCATION_ON)
                 }.show()
         } else {
