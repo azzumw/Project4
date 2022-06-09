@@ -34,6 +34,7 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import org.koin.android.ext.android.get
 //import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 //import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.android.ext.android.inject
@@ -122,8 +123,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setMapStyle(map)
         setPoiClick(map)
         setMapLongClick(map)
-
-        showSnackBar(getString(R.string.selection_location_message))
     }
 
     private fun isPermissionGranted(): Boolean {
@@ -137,7 +136,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
-
+            showSnackBar(getString(R.string.selection_location_message))
             val locationResult: Task<Location> = fusedLocationClient.lastLocation
             locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
                 if (task.isSuccessful) {
@@ -156,8 +155,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     }
                 }
             })
-        }
-        else {
+
+
+        } else {
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_PERMISSION_LOCATION
@@ -166,12 +166,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-           /*
-           you need super.onActivityResult() in the host activity for this to be triggered
-           * */
-            if(requestCode == REQUEST_PERMISSION_LOCATION){
-                enableMyLocation()
-            }
+        /*
+        you need super.onActivityResult() in the host activity for this to be triggered
+        * */
+        if (requestCode == REQUEST_PERMISSION_LOCATION) {
+            enableMyLocation()
+            showSnackBar(getString(R.string.selection_location_message))
+        }
     }
 
 
@@ -186,28 +187,29 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (requestCode == REQUEST_PERMISSION_LOCATION) {
             if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
                 enableMyLocation()
+                showSnackBar(getString(R.string.selection_location_message))
             } else {
 //                requestPermissions(
 //                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
 //                    REQUEST_PERMISSION_LOCATION)
                 Snackbar.make(
-                activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
-                R.string.permission_denied_explanation,
-                Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction(R.string.settings) {
-                    val intent = Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                    activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
+                    R.string.permission_denied_explanation,
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                    .setAction(R.string.settings) {
+                        val intent = Intent().apply {
+                            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
 
-                    }
-                    startActivityForResult(intent,REQUEST_PERMISSION_LOCATION)
+                        }
+                        startActivityForResult(intent, REQUEST_PERMISSION_LOCATION)
 //                    startActivity(Intent().apply {
 //                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 //                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
 //                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
 //                    })
-                }.show()
+                    }.show()
 //                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
 //                    REQUEST_PERMISSION_LOCATION)
             }

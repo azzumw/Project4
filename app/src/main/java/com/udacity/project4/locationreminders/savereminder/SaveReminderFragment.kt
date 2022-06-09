@@ -17,7 +17,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.content.IntentCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -123,7 +122,7 @@ class SaveReminderFragment : BaseFragment() {
             )
 
             //save the reminder and check permissions
-            if(_viewModel.validateEnteredData(reminderDataItem)){
+            if (_viewModel.validateEnteredData(reminderDataItem)) {
                 checkPermissionsAndStartGeofencing()
             }
         }
@@ -201,12 +200,7 @@ class SaveReminderFragment : BaseFragment() {
                     startActivityForResult(Intent().apply {
                         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                         data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-//                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         addFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-//                        flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME
-//                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-//                        flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-//                        flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
                     }, REQUEST_TURN_DEVICE_LOCATION_ON)
                 }.show()
         } else {
@@ -215,9 +209,7 @@ class SaveReminderFragment : BaseFragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
-            Toast.makeText(requireContext(),"FRAG TOAST",Toast.LENGTH_SHORT).show()
             checkDeviceLocationSettingsAndStartGeofence(false)
         }
     }
@@ -261,31 +253,30 @@ class SaveReminderFragment : BaseFragment() {
                 createGeofenceAndRequestAndAdd()
             }
         }
-
     }
 
     private fun createGeofenceAndRequestAndAdd() {
 
-            _viewModel.saveReminder(reminderDataItem)
+        _viewModel.saveReminder(reminderDataItem)
 
-            val geofence = Geofence.Builder()
-                .setRequestId(reminderDataItem.id)
-                .setCircularRegion(
-                    reminderDataItem.latitude!!,
-                    reminderDataItem.longitude!!,
-                    GEOFENCE_RADIUS_IN_METERS
-                )
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                .build()
+        val geofence = Geofence.Builder()
+            .setRequestId(reminderDataItem.id)
+            .setCircularRegion(
+                reminderDataItem.latitude!!,
+                reminderDataItem.longitude!!,
+                GEOFENCE_RADIUS_IN_METERS
+            )
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .build()
 
-            //create geofence request
-            val geofencingRequest = GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .addGeofence(geofence)
-                .build()
+        //create geofence request
+        val geofencingRequest = GeofencingRequest.Builder()
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .addGeofence(geofence)
+            .build()
 
-            addGeoFenceRequest(geofencingRequest, geofence)
+        addGeoFenceRequest(geofencingRequest, geofence)
 
     }
 

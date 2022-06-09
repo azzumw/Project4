@@ -34,10 +34,6 @@ class AppNavigation {
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
-    companion object{
-
-    }
-
     /**
      * Idling resources tell Espresso that the app is idle or busy. This is needed when operations
      * are not scheduled in the main Looper (for example when executed on a different thread).
@@ -64,14 +60,14 @@ class AppNavigation {
         dataBindingIdlingResource.monitorActivity(activityScenario)
 
         //When FAB is clicked
-         viewWithId(R.id.addReminderFAB).click()
+        viewWithId(R.id.addReminderFAB).click()
 
         //THEN - SaveReminder Screen is shown
         viewWithId(R.id.reminderTitle).check(matches(isDisplayed()))
     }
 
     @Test
-    fun remindersList_clickOnFab_opensSaveReminderScreen_opensSelectLocation(){
+    fun remindersList_clickOnFab_opensSaveReminderScreen_opensSelectLocation() {
         //GIVEN - Reminder activity is launched
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
@@ -90,7 +86,7 @@ class AppNavigation {
     }
 
     @Test
-    fun remindersList_to_SaveReminders_pressBack_to_remindersList(){
+    fun remindersList_to_SaveReminders_pressBack_to_remindersList() {
         //GIVEN - Reminder activity is launched
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
@@ -145,10 +141,10 @@ class AppNavigation {
     @Test
     fun reminderDescription_clickingFab_returnsToRemindersList() {
         val EXTRA_ReminderDataItem = "EXTRA_ReminderDataItem"
-        val dataItem =  ReminderDataItem("Title 1","Desc","London",51.0,51.0,"id1")
+        val dataItem = ReminderDataItem("Title 1", "Desc", "London", 51.0, 51.0, "id1")
 
         val intent = Intent().apply {
-            this.putExtra(EXTRA_ReminderDataItem,dataItem)
+            this.putExtra(EXTRA_ReminderDataItem, dataItem)
         }
 
         val activityScenario = ActivityScenario.launch(ReminderDescriptionActivity::class.java)

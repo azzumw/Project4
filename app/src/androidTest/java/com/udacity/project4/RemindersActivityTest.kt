@@ -75,6 +75,13 @@ class RemindersActivityTest :
         }
     }
 
+    private fun removeLocationPermissionWatcher(){
+        uiDevice.removeWatcher("locationDialog")
+        uiDevice.removeWatcher("locationAllowAll")
+//        uiDevice.runWatchers()
+    }
+
+
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
      * at this step we will initialize Koin related code to be able to use it in out testing.
@@ -147,6 +154,8 @@ class RemindersActivityTest :
 
     //Ensure location is set manually,
     // going to Google maps  - updating the location
+
+    //REQUIRES CHANGES
     @Test
     fun e2e_saveAReminder_completeJourney() {
 
@@ -171,6 +180,8 @@ class RemindersActivityTest :
         viewWithId(R.id.reminderTitle).type(remindertitle)
         viewWithId(R.id.reminderDescription).type(reminderDesc)
 
+
+
         viewWithId(R.id.saveReminder).click()
 
         viewWithText(R.string.reminder_saved).inRoot(
@@ -188,7 +199,6 @@ class RemindersActivityTest :
             )
         )
 
-        SystemClock.sleep(2000)
 
         viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText(remindertitle))))
 
@@ -209,6 +219,7 @@ class RemindersActivityTest :
      * Test: title error is displayed with correct error text
      * */
 
+    //REQUIRES CHANGES
     @Test
     fun e2e_correctTitleErrorDisplayed() {
 
@@ -219,11 +230,12 @@ class RemindersActivityTest :
 
         viewWithId(R.id.selectLocation).perform(click())
 
+        uiDevice.runWatchers()
+
         SystemClock.sleep(5000)
 
         viewWithId(R.id.map).perform(longClick())
         SystemClock.sleep(2000)
-        viewWithId(R.id.map).perform(longClick())
         viewWithId(R.id.map).perform(click())
 
         viewWithId(R.id.saveBtn).click()
@@ -268,6 +280,7 @@ class RemindersActivityTest :
      * Test: snackbar appears when SaveLocationFragment launches with correct text
      * */
 
+    //REQUIRES CHANGES
     @Test
     fun e2e_snackBarWithCorrectTextAppears_launch_SaveLocationFragment() {
 
@@ -284,6 +297,8 @@ class RemindersActivityTest :
         activityScenarioRule.close()
     }
 
+
+    //REQUIRES CHANGES
     @Test
     fun e2e_selectLocation_clickSaveWithoutChoosingPoi_resultToastAppears() {
         val activity = launch(RemindersActivity::class.java)
