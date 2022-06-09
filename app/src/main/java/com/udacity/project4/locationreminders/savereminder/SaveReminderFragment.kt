@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.content.IntentCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -27,12 +28,12 @@ import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
-import com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService
 import com.udacity.project4.locationreminders.geofence.GeofenceTransitionsJobIntentService.Companion.GeofencingConstants.GEOFENCE_RADIUS_IN_METERS
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
+
 
 class SaveReminderFragment : BaseFragment() {
     companion object {
@@ -200,6 +201,8 @@ class SaveReminderFragment : BaseFragment() {
                     startActivityForResult(Intent().apply {
                         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                         data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+//                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        addFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
 //                        flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME
 //                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
 //                        flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
@@ -212,7 +215,7 @@ class SaveReminderFragment : BaseFragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+//        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
             Toast.makeText(requireContext(),"FRAG TOAST",Toast.LENGTH_SHORT).show()
             checkDeviceLocationSettingsAndStartGeofence(false)
