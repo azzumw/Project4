@@ -40,11 +40,6 @@ class RemindersActivity : AppCompatActivity() {
     }
 
 
-    override fun onStart() {
-        super.onStart()
-//        checkPermissionsAndStartGeofencing()
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -57,7 +52,6 @@ class RemindersActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-//        Toast.makeText(this,"ACTIVITY ON RESULT",Toast.LENGTH_SHORT).show()
     }
 
 }

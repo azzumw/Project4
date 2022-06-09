@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -196,11 +197,12 @@ class SaveReminderFragment : BaseFragment() {
                 Snackbar.LENGTH_INDEFINITE
             )
                 .setAction(R.string.settings) {
-                    startActivity(Intent().apply {
+                    startActivityForResult(Intent().apply {
                         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                         data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    })
+                        flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME
+                        flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+                    }, REQUEST_TURN_DEVICE_LOCATION_ON)
                 }.show()
         } else {
             checkDeviceLocationSettingsAndStartGeofence()
@@ -210,6 +212,7 @@ class SaveReminderFragment : BaseFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+            Toast.makeText(requireContext(),"FRAG TOAST",Toast.LENGTH_SHORT).show()
             checkDeviceLocationSettingsAndStartGeofence(false)
         }
     }
