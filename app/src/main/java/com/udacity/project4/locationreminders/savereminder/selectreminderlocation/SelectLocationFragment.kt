@@ -5,6 +5,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Resources
@@ -16,13 +17,17 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnCompleteListener
@@ -32,6 +37,7 @@ import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
+import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.get
@@ -42,6 +48,7 @@ import java.util.*
 import kotlin.properties.Delegates
 
 
+private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     //Use Koin to get the view model of the SaveReminder
@@ -55,6 +62,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val REQUEST_PERMISSION_LOCATION = 1
+
 
     private val TAG = this.javaClass.simpleName
 
@@ -135,35 +143,76 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
-            map.isMyLocationEnabled = true
-            showSnackBar(getString(R.string.selection_location_message))
-            val locationResult: Task<Location> = fusedLocationClient.lastLocation
-            locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
-                if (task.isSuccessful) {
-                    // Set the map's camera position to the current location of the device.
-                    if (task.result != null) {
-                        val location: Location = task.result!!
-                        val currentLatLng = LatLng(
-                            location.latitude,
-                            location.longitude
-                        )
-                        val update = CameraUpdateFactory.newLatLngZoom(
-                            currentLatLng,
-                            18f
-                        )
-                        map.animateCamera(update)
-                    }
-                }
-            })
-
-
-        } else {
+            checkDeviceLocationSettings()
+        }
+         else {
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_PERMISSION_LOCATION
             )
         }
     }
+
+    @SuppressLint("MissingPermission")
+    private fun checkDeviceLocationSettings(resolve: Boolean = true) {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_LOW_POWER
+        }
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(requireActivity())
+        val locationSettingsResponseTask =
+            settingsClient.checkLocationSettings(builder.build())
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException && resolve) {
+                try {
+                    exception.startResolutionForResult(
+                        requireActivity(),
+                        REQUEST_TURN_DEVICE_LOCATION_ON
+                    )
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d(SaveReminderFragment.TAG, "Error getting location settings resolution: " + sendEx.message)
+                }
+            } else {
+                Snackbar.make(
+                    activity!!.findViewById<CoordinatorLayout>(R.id.myCoordinatorLayout),
+                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                ).setAction(android.R.string.ok) {
+                    checkDeviceLocationSettings()
+                }.show()
+            }
+        }
+
+        locationSettingsResponseTask.addOnCompleteListener {
+            if (it.isSuccessful) {
+                Log.e(TAG, "SUCCESSFUL!")
+
+                map.isMyLocationEnabled = true
+
+                showSnackBar(getString(R.string.selection_location_message))
+                val locationResult: Task<Location> = fusedLocationClient.lastLocation
+                locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+                    if (task.isSuccessful) {
+                        // Set the map's camera position to the current location of the device.
+                        if (task.result != null) {
+                            val location: Location = task.result!!
+                            val currentLatLng = LatLng(
+                                location.latitude,
+                                location.longitude
+                            )
+                            val update = CameraUpdateFactory.newLatLngZoom(
+                                currentLatLng,
+                                18f
+                            )
+                            map.animateCamera(update)
+                        }
+                    }
+                })
+
+
+            }
+        }
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         /*
