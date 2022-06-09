@@ -3,7 +3,7 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.annotation.TargetApi
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -19,7 +19,6 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
@@ -40,7 +39,6 @@ import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-import org.koin.android.ext.android.get
 //import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 //import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.android.ext.android.inject
@@ -126,7 +124,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         map = gMap
 
-        enableMyLocation()
+        checkPermissionsAndDeviceLocationSettings()
 
         setMapStyle(map)
         setPoiClick(map)
@@ -140,8 +138,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         ) == PERMISSION_GRANTED
     }
 
+
+
     @SuppressLint("MissingPermission")
-    private fun enableMyLocation() {
+    private fun checkPermissionsAndDeviceLocationSettings() {
         if (isPermissionGranted()) {
             checkDeviceLocationSettings()
         }
@@ -154,6 +154,30 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
+    private fun enableLocation(){
+        map.isMyLocationEnabled = true
+
+        val locationResult: Task<Location> = fusedLocationClient.lastLocation
+        locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+            if (task.isSuccessful) {
+                // Set the map's camera position to the current location of the device.
+                if (task.result != null) {
+                    val location: Location = task.result!!
+                    val currentLatLng = LatLng(
+                        location.latitude,
+                        location.longitude
+                    )
+                    val update = CameraUpdateFactory.newLatLngZoom(
+                        currentLatLng,
+                        18f
+                    )
+                    map.animateCamera(update)
+                }
+            }
+        })
+    }
+
+
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_LOW_POWER
@@ -186,29 +210,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             if (it.isSuccessful) {
                 Log.e(TAG, "SUCCESSFUL!")
 
-                map.isMyLocationEnabled = true
-
-                showSnackBar(getString(R.string.selection_location_message))
-                val locationResult: Task<Location> = fusedLocationClient.lastLocation
-                locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
-                    if (task.isSuccessful) {
-                        // Set the map's camera position to the current location of the device.
-                        if (task.result != null) {
-                            val location: Location = task.result!!
-                            val currentLatLng = LatLng(
-                                location.latitude,
-                                location.longitude
-                            )
-                            val update = CameraUpdateFactory.newLatLngZoom(
-                                currentLatLng,
-                                18f
-                            )
-                            map.animateCamera(update)
-                        }
-                    }
-                })
-
-
+                enableLocation()
             }
         }
     }
@@ -218,9 +220,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         /*
         you need super.onActivityResult() in the host activity for this to be triggered
         * */
-        if (requestCode == REQUEST_PERMISSION_LOCATION) {
-            enableMyLocation()
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+            checkPermissionsAndDeviceLocationSettings()
             showSnackBar(getString(R.string.selection_location_message))
+        }else if (requestCode == REQUEST_PERMISSION_LOCATION){
+            checkPermissionsAndDeviceLocationSettings()
         }
     }
 
@@ -233,14 +237,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Check if location permissions are granted and if so enable the
         // location data layer.
-        if (requestCode == REQUEST_PERMISSION_LOCATION) {
+
             if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
-                enableMyLocation()
+                checkPermissionsAndDeviceLocationSettings()
                 showSnackBar(getString(R.string.selection_location_message))
             } else {
-//                requestPermissions(
-//                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-//                    REQUEST_PERMISSION_LOCATION)
+
                 Snackbar.make(
                     activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
                     R.string.permission_denied_explanation,
@@ -261,7 +263,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     }.show()
 //                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
 //                    REQUEST_PERMISSION_LOCATION)
-            }
+
         }
 
 
