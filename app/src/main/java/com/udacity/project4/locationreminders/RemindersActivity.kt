@@ -11,6 +11,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
@@ -52,6 +53,11 @@ class RemindersActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+//        Toast.makeText(this,"ACTIVITY ON RESULT",Toast.LENGTH_SHORT).show()
     }
 
 }

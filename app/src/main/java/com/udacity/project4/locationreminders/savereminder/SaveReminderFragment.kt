@@ -120,12 +120,7 @@ class SaveReminderFragment : BaseFragment() {
                 longitude = longitude
             )
 
-
-            //request background service
-
-            //check permissions first
-            //once permissions are granted
-            //save the reminder and start geofence
+            //save the reminder and check permissions
             if(_viewModel.validateEnteredData(reminderDataItem)){
                 checkPermissionsAndStartGeofencing()
             }

@@ -126,10 +126,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         showSnackBar(getString(R.string.selection_location_message))
     }
 
-    fun showMyLocation(gmap: GoogleMap, latLng: LatLng) {
-        gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
-    }
-
     private fun isPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             requireContext(),
@@ -170,9 +166,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
+           /*
+           you need super.onActivityResult() in the host activity for this to be triggered
+           * */
+            if(requestCode == REQUEST_PERMISSION_LOCATION){
+                enableMyLocation()
+            }
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -195,11 +196,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Snackbar.LENGTH_INDEFINITE
             )
                 .setAction(R.string.settings) {
-                    startActivity(Intent().apply {
+                    val intent = Intent().apply {
                         action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                         data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    })
+
+                    }
+                    startActivityForResult(intent,REQUEST_PERMISSION_LOCATION)
+//                    startActivity(Intent().apply {
+//                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+//                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+//                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//                    })
                 }.show()
 //                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
 //                    REQUEST_PERMISSION_LOCATION)
