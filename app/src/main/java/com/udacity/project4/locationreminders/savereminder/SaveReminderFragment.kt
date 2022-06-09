@@ -203,6 +203,7 @@ class SaveReminderFragment : BaseFragment() {
 //                        flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME
 //                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
 //                        flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+//                        flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
                     }, REQUEST_TURN_DEVICE_LOCATION_ON)
                 }.show()
         } else {
