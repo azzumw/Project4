@@ -58,6 +58,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     private val REQUEST_PERMISSION_LOCATION = 1
     private lateinit var mCurrentLocation: Location
+    private lateinit var currentLatLng: LatLng
 
 
     private val TAG = this.javaClass.simpleName
@@ -194,7 +195,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
                         override fun onLocationResult(locationResult: LocationResult?) {
                             locationResult ?: return
-
+                            for (location in locationResult.locations) {
+                                if (location != null) {
+                                    mCurrentLocation = location
+                                } else {
+                                    Log.e(TAG, "location is null")
+                                }
+                            }
                         }
                     }
 
@@ -204,31 +211,35 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         Looper.getMainLooper()
                     )
 
+                    val lastLocation = fusedLocationClient.lastLocation
 
-                    val result: Task<Location> = fusedLocationClient.lastLocation
+                    lastLocation.addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            Log.e(TAG, "Location is here")
+                            val task = it.result!!
+                            mCurrentLocation = task!!
 
-                    result.addOnCompleteListener{
-                        if(it.isSuccessful){
-                            mCurrentLocation = it.result!!
+                        } else {
+                            Log.e(TAG, "Location is not here")
                         }
                     }
-                    val currentLatLng = LatLng(
-                        mCurrentLocation.latitude,
-                        mCurrentLocation.longitude
-                    )
-
-//                    val currentLatLng = LatLng(51.5297, -0.0886)
-
+//                    fusedLocationClient.setMockLocation(mCurrentLocation)
+//
+                    if (mCurrentLocation != null){
+                        currentLatLng =  LatLng(mCurrentLocation.latitude, mCurrentLocation.longitude)
+                    }else{
+                        currentLatLng = LatLng(51.5297, -0.0886)
+                    }
                     val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
                     map.animateCamera(update)
 
                 }
+
             } else {
 
                 Log.e(TAG, "Unsuccessful Task result")
                 Toast.makeText(requireContext(), "ENABLE LOCATION ELSE", Toast.LENGTH_LONG).show()
                 //request location updates
-
 
             }
         })
