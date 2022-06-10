@@ -12,6 +12,7 @@ import android.content.res.Resources
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.*
@@ -23,10 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnCompleteListener
@@ -58,8 +56,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private var isPoiSelected by Delegates.notNull<Boolean>()
     private lateinit var selectedPoi: PointOfInterest
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
 
     private val REQUEST_PERMISSION_LOCATION = 1
+    private lateinit var mCurrentLocation : Location
 
 
     private val TAG = this.javaClass.simpleName
@@ -154,18 +154,27 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
-    private fun enableLocation(){
+    private fun startLocationUpdates(locationRequest:LocationRequest, locationCallback:LocationCallback) {
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+            locationCallback,
+            Looper.getMainLooper())
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableLocation(locationRequest: LocationRequest){
+
         map.isMyLocationEnabled = true
 
         val locationResult: Task<Location> = fusedLocationClient.lastLocation
+
         locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
             if (task.isSuccessful) {
                 // Set the map's camera position to the current location of the device.
                 if (task.result != null) {
-                    val location: Location = task.result!!
+                    mCurrentLocation = task.result!!
                     val currentLatLng = LatLng(
-                        location.latitude,
-                        location.longitude
+                        mCurrentLocation.latitude,
+                        mCurrentLocation.longitude
                     )
                     val update = CameraUpdateFactory.newLatLngZoom(
                         currentLatLng,
@@ -173,6 +182,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     )
                     map.animateCamera(update)
                 }
+            }else{
+                //request lcoation updates
+                locationCallback = object : LocationCallback() {
+
+                    override fun onLocationResult(locationResult: LocationResult?) {
+                        locationResult ?: return
+                    }
+                }
+                startLocationUpdates(locationRequest,locationCallback)
+
             }
         })
     }
@@ -186,6 +205,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val settingsClient = LocationServices.getSettingsClient(requireActivity())
         val locationSettingsResponseTask =
             settingsClient.checkLocationSettings(builder.build())
+
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
                 try {
@@ -207,7 +227,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
 
         locationSettingsResponseTask.addOnCompleteListener {
+
             if (it.isSuccessful) {
+
                 Log.e(TAG, "SUCCESSFUL!")
 
                 enableLocation()
@@ -220,9 +242,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         /*
         you need super.onActivityResult() in the host activity for this to be triggered
         * */
+
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
             checkPermissionsAndDeviceLocationSettings()
-            showSnackBar(getString(R.string.selection_location_message))
+//            showSnackBar(getString(R.string.selection_location_message))
         }else if (requestCode == REQUEST_PERMISSION_LOCATION){
             checkPermissionsAndDeviceLocationSettings()
         }
