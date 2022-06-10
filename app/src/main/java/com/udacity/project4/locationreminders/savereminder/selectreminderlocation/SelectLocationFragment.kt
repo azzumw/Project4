@@ -1,12 +1,12 @@
 package com.udacity.project4.locationreminders.savereminder.selectreminderlocation
 
 
+//import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+//import com.udacity.project4.utils.wrapEspressoIdlingResource
 import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Intent
 import android.content.IntentSender
-import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Resources
 import android.location.Location
@@ -19,7 +19,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
@@ -37,14 +36,13 @@ import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-//import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-//import com.udacity.project4.utils.wrapEspressoIdlingResource
 import org.koin.android.ext.android.inject
 import java.util.*
 import kotlin.properties.Delegates
 
 
 private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
+
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     //Use Koin to get the view model of the SaveReminder
@@ -59,7 +57,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var locationCallback: LocationCallback
 
     private val REQUEST_PERMISSION_LOCATION = 1
-    private lateinit var mCurrentLocation : Location
+    private lateinit var mCurrentLocation: Location
 
 
     private val TAG = this.javaClass.simpleName
@@ -139,13 +137,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
-
     @SuppressLint("MissingPermission")
     private fun checkPermissionsAndDeviceLocationSettings() {
         if (isPermissionGranted()) {
             checkDeviceLocationSettings()
-        }
-         else {
+        } else {
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_PERMISSION_LOCATION
@@ -154,16 +150,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
-    private fun startLocationUpdates(locationRequest:LocationRequest, locationCallback:LocationCallback) {
-          fusedLocationClient.requestLocationUpdates(locationRequest,
+    private fun startLocationUpdates(
+        locationRequest: LocationRequest,
+        locationCallback: LocationCallback
+    ) {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
             locationCallback,
-            Looper.getMainLooper())
+            Looper.getMainLooper()
+        )
     }
 
     @SuppressLint("MissingPermission")
-    private fun enableLocation(){
+    private fun enableLocation(locationRequest: LocationRequest) {
 
-        Log.e(TAG,"Inside Enable Location Start")
+        Log.e(TAG, "Inside Enable Location Start")
 
         map.isMyLocationEnabled = true
 
@@ -183,40 +184,51 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         currentLatLng,
                         18f
                     )
-                    Toast.makeText(requireContext(),"CAMERA MOVING",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "CAMERA MOVING", Toast.LENGTH_SHORT).show()
                     map.animateCamera(update)
-                }else{
+                } else {
                     Log.e(TAG, " Task result is null")
                     //Need to do something here to get the real time location
 
-                    val currentLatLng = LatLng(51.5297,-0.0886)
+                    locationCallback = object : LocationCallback() {
+
+                        override fun onLocationResult(locationResult: LocationResult?) {
+                            locationResult ?: return
+
+                        }
+                    }
+
+                    fusedLocationClient.requestLocationUpdates(
+                        locationRequest,
+                        locationCallback,
+                        Looper.getMainLooper()
+                    )
+
+
+                    val result: Task<Location> = fusedLocationClient.lastLocation
+
+                    result.addOnCompleteListener{
+                        if(it.isSuccessful){
+                            mCurrentLocation = it.result!!
+                        }
+                    }
+                    val currentLatLng = LatLng(
+                        mCurrentLocation.latitude,
+                        mCurrentLocation.longitude
+                    )
+
+//                    val currentLatLng = LatLng(51.5297, -0.0886)
+
                     val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
                     map.animateCamera(update)
 
                 }
-            }else{
+            } else {
 
                 Log.e(TAG, "Unsuccessful Task result")
-                Toast.makeText(requireContext(),"ENABLE LOCATION ELSE",Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "ENABLE LOCATION ELSE", Toast.LENGTH_LONG).show()
                 //request location updates
-//                locationCallback = object : LocationCallback() {
-//
-//                    override fun onLocationResult(locationResult: LocationResult?) {
-//                        locationResult ?: return
-//                        mCurrentLocation = locationResult.lastLocation
-//                    }
-//                }
-//
-//                startLocationUpdates(locationRequest,locationCallback)
-//                val currentLatLng = LatLng(
-//                    mCurrentLocation.latitude,
-//                    mCurrentLocation.longitude
-//                )
-//                val update = CameraUpdateFactory.newLatLngZoom(
-//                    currentLatLng,
-//                    18f
-//                )
-//                map.animateCamera(update)
+
 
             }
         })
@@ -239,14 +251,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
                 try {
-                    startIntentSenderForResult(exception.resolution.intentSender,
-                        REQUEST_TURN_DEVICE_LOCATION_ON,null,0,0,0,null)
+                    startIntentSenderForResult(
+                        exception.resolution.intentSender,
+                        REQUEST_TURN_DEVICE_LOCATION_ON, null, 0, 0, 0, null
+                    )
 //                    exception.startResolutionForResult(
 //                        requireActivity(),
 //                        REQUEST_TURN_DEVICE_LOCATION_ON
 //                    )
                 } catch (sendEx: IntentSender.SendIntentException) {
-                    Log.d(SaveReminderFragment.TAG, "Error getting location settings resolution: " + sendEx.message)
+                    Log.d(
+                        SaveReminderFragment.TAG,
+                        "Error getting location settings resolution: " + sendEx.message
+                    )
                 }
             } else {
                 Snackbar.make(
@@ -260,9 +277,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         locationSettingsResponseTask.addOnSuccessListener {
 
-                Log.e(TAG, "SUCCESSFUL!")
-                Toast.makeText(requireContext(),"TOAST",Toast.LENGTH_SHORT).show()
-                enableLocation()
+            Log.e(TAG, "SUCCESSFUL!")
+            Toast.makeText(requireContext(), "TOAST", Toast.LENGTH_SHORT).show()
+            enableLocation(locationRequest)
         }
     }
 
@@ -273,7 +290,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         * */
 
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON || requestCode == REQUEST_PERMISSION_LOCATION) {
-            Toast.makeText(requireContext(),"ON ACT RES",Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "ON ACT RES", Toast.LENGTH_SHORT).show()
             checkPermissionsAndDeviceLocationSettings()
 //            showSnackBar(getString(R.string.selection_location_message))
         }
@@ -289,29 +306,29 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // Check if location permissions are granted and if so enable the
         // location data layer.
 
-            if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
-                checkPermissionsAndDeviceLocationSettings()
-                showSnackBar(getString(R.string.selection_location_message))
-            } else {
+        if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
+            checkPermissionsAndDeviceLocationSettings()
+            showSnackBar(getString(R.string.selection_location_message))
+        } else {
 
-                Snackbar.make(
-                    activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
-                    R.string.permission_denied_explanation,
-                    Snackbar.LENGTH_INDEFINITE
-                )
-                    .setAction(R.string.settings) {
-                        val intent = Intent().apply {
-                            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+            Snackbar.make(
+                activity!!.findViewById<ConstraintLayout>(R.id.reminderActivityConstraintLayout),
+                R.string.permission_denied_explanation,
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(R.string.settings) {
+                    val intent = Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
 
-                        }
-                        startActivityForResult(intent, REQUEST_PERMISSION_LOCATION)
+                    }
+                    startActivityForResult(intent, REQUEST_PERMISSION_LOCATION)
 //                    startActivity(Intent().apply {
 //                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 //                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
 //                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
 //                    })
-                    }.show()
+                }.show()
 //                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
 //                    REQUEST_PERMISSION_LOCATION)
 
