@@ -155,13 +155,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates(locationRequest:LocationRequest, locationCallback:LocationCallback) {
-        fusedLocationClient.requestLocationUpdates(locationRequest,
+          fusedLocationClient.requestLocationUpdates(locationRequest,
             locationCallback,
             Looper.getMainLooper())
     }
 
     @SuppressLint("MissingPermission")
-    private fun enableLocation(locationRequest: LocationRequest){
+    private fun enableLocation(){
+
+        Log.e(TAG,"Inside Enable Location Start")
 
         map.isMyLocationEnabled = true
 
@@ -169,6 +171,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
             if (task.isSuccessful) {
+                Log.e(TAG, locationResult.result?.latitude.toString())
                 // Set the map's camera position to the current location of the device.
                 if (task.result != null) {
                     mCurrentLocation = task.result!!
@@ -180,17 +183,40 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         currentLatLng,
                         18f
                     )
+                    Toast.makeText(requireContext(),"CAMERA MOVING",Toast.LENGTH_SHORT).show()
                     map.animateCamera(update)
+                }else{
+                    Log.e(TAG, " Task result is null")
+                    //Need to do something here to get the real time location
+
+                    val currentLatLng = LatLng(51.5297,-0.0886)
+                    val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
+                    map.animateCamera(update)
+
                 }
             }else{
-                //request lcoation updates
-                locationCallback = object : LocationCallback() {
 
-                    override fun onLocationResult(locationResult: LocationResult?) {
-                        locationResult ?: return
-                    }
-                }
-                startLocationUpdates(locationRequest,locationCallback)
+                Log.e(TAG, "Unsuccessful Task result")
+                Toast.makeText(requireContext(),"ENABLE LOCATION ELSE",Toast.LENGTH_LONG).show()
+                //request location updates
+//                locationCallback = object : LocationCallback() {
+//
+//                    override fun onLocationResult(locationResult: LocationResult?) {
+//                        locationResult ?: return
+//                        mCurrentLocation = locationResult.lastLocation
+//                    }
+//                }
+//
+//                startLocationUpdates(locationRequest,locationCallback)
+//                val currentLatLng = LatLng(
+//                    mCurrentLocation.latitude,
+//                    mCurrentLocation.longitude
+//                )
+//                val update = CameraUpdateFactory.newLatLngZoom(
+//                    currentLatLng,
+//                    18f
+//                )
+//                map.animateCamera(update)
 
             }
         })
@@ -198,21 +224,27 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
+
         val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_LOW_POWER
+            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
+
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+
         val settingsClient = LocationServices.getSettingsClient(requireActivity())
+
         val locationSettingsResponseTask =
             settingsClient.checkLocationSettings(builder.build())
 
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
                 try {
-                    exception.startResolutionForResult(
-                        requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON
-                    )
+                    startIntentSenderForResult(exception.resolution.intentSender,
+                        REQUEST_TURN_DEVICE_LOCATION_ON,null,0,0,0,null)
+//                    exception.startResolutionForResult(
+//                        requireActivity(),
+//                        REQUEST_TURN_DEVICE_LOCATION_ON
+//                    )
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(SaveReminderFragment.TAG, "Error getting location settings resolution: " + sendEx.message)
                 }
@@ -226,14 +258,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         }
 
-        locationSettingsResponseTask.addOnCompleteListener {
-
-            if (it.isSuccessful) {
+        locationSettingsResponseTask.addOnSuccessListener {
 
                 Log.e(TAG, "SUCCESSFUL!")
-
+                Toast.makeText(requireContext(),"TOAST",Toast.LENGTH_SHORT).show()
                 enableLocation()
-            }
         }
     }
 
@@ -243,11 +272,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         you need super.onActivityResult() in the host activity for this to be triggered
         * */
 
-        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON || requestCode == REQUEST_PERMISSION_LOCATION) {
+            Toast.makeText(requireContext(),"ON ACT RES",Toast.LENGTH_SHORT).show()
             checkPermissionsAndDeviceLocationSettings()
 //            showSnackBar(getString(R.string.selection_location_message))
-        }else if (requestCode == REQUEST_PERMISSION_LOCATION){
-            checkPermissionsAndDeviceLocationSettings()
         }
     }
 
@@ -392,5 +420,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onDestroy() {
         super.onDestroy()
         isPoiSelected = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+
     }
 }
