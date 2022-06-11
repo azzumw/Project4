@@ -6,13 +6,11 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Resources
 import android.location.Location
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
@@ -213,17 +211,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
-                Log.e(TAG, "onLocationResult")
+                Log.e(TAG, "Inside on Location Result")
+                Log.e(TAG, "$locationResult")
                 locationResult ?: return
                 for (location in locationResult.locations){
                     mCurrentLocation = location
                 }
+
+                fusedLocationClient.removeLocationUpdates(locationCallback)
             }
         }
 
         map.isMyLocationEnabled = true
-
-
 
         val locationResult: Task<Location> = fusedLocationClient.lastLocation
 
@@ -248,10 +247,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     //Need to do something here to get the real time location
                     fusedLocationClient.requestLocationUpdates(locationRequest,locationCallback, Looper.getMainLooper())
 
+//                    fusedLocationClient.lastLocation.addOnCompleteListener {
+//                        if(it.isSuccessful){
+//                            Toast.makeText(context,"Location here",Toast.LENGTH_SHORT).show()
+//                        }
+//
+//                    }
 
-                    currentLatLng = LatLng(mCurrentLocation.latitude,mCurrentLocation.longitude)
+//                    currentLatLng = LatLng(mCurrentLocation.latitude,mCurrentLocation.longitude)
 
-//                    currentLatLng = LatLng(51.5297, -0.0886)
+                    currentLatLng = LatLng(51.5297, -0.0886)
 
                     val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
                     map.animateCamera(update)
