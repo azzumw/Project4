@@ -177,12 +177,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 // Set the map's camera position to the current location of the device.
                 if (task.result != null) {
                     mCurrentLocation = task.result!!
-                    val currentLatLng = LatLng(
+                    val latLng = LatLng(
                         mCurrentLocation.latitude,
                         mCurrentLocation.longitude
                     )
                     val update = CameraUpdateFactory.newLatLngZoom(
-                        currentLatLng,
+                        latLng,
                         18f
                     )
                     Toast.makeText(requireContext(), "CAMERA MOVING", Toast.LENGTH_SHORT).show()
@@ -216,8 +216,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     lastLocation.addOnCompleteListener {
                         if (it.isSuccessful) {
                             Log.e(TAG, "Location is here")
-                            val task = it.result!!
-                            mCurrentLocation = task!!
+                            val task2 = it.result!!
+                            mCurrentLocation = task2
 
                         } else {
                             Log.e(TAG, "Location is not here")
@@ -225,11 +225,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     }
 //                    fusedLocationClient.setMockLocation(mCurrentLocation)
 //
-                    if (mCurrentLocation != null){
-                        currentLatLng =  LatLng(mCurrentLocation.latitude, mCurrentLocation.longitude)
-                    }else{
-                        currentLatLng = LatLng(51.5297, -0.0886)
-                    }
+                    currentLatLng =  LatLng(mCurrentLocation.latitude, mCurrentLocation.longitude)
+
+//                    currentLatLng = LatLng(51.5297, -0.0886)
+
                     val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
                     map.animateCamera(update)
 
