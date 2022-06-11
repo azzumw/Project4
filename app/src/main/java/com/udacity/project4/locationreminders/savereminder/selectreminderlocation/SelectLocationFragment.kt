@@ -25,13 +25,19 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
+import com.google.android.libraries.maps.model.*
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
@@ -201,6 +207,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Toast.makeText(requireContext(), "TOAST", Toast.LENGTH_SHORT).show()
 
             enableLocation(locationRequest)
+            showSnackBar(getString(R.string.select_location))
         }
     }
 
@@ -210,13 +217,22 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         Log.e(TAG, "Inside Enable Location Start")
 
         locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
+
+            override fun onLocationResult(locationResult: LocationResult) {
+                super.onLocationResult(locationResult)
                 Log.e(TAG, "Inside on Location Result")
-                Log.e(TAG, "$locationResult")
-                locationResult ?: return
-                for (location in locationResult.locations){
+                val locationList = locationResult.locations
+                Log.e(TAG, "${locationResult.locations}")
+                if(locationList.isNotEmpty()){
+                    val location = locationList.last()
+                    Log.i("MapsActivity", "Location: " + location.latitude + " " + location.longitude)
                     mCurrentLocation = location
                 }
+
+//                locationResult ?: return
+//                for (location in locationResult.locations){
+//                    mCurrentLocation = location
+//                }
 
                 fusedLocationClient.removeLocationUpdates(locationCallback)
             }
@@ -247,16 +263,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     //Need to do something here to get the real time location
                     fusedLocationClient.requestLocationUpdates(locationRequest,locationCallback, Looper.getMainLooper())
 
-//                    fusedLocationClient.lastLocation.addOnCompleteListener {
-//                        if(it.isSuccessful){
-//                            Toast.makeText(context,"Location here",Toast.LENGTH_SHORT).show()
-//                        }
-//
-//                    }
+                    currentLatLng = LatLng(mCurrentLocation.latitude,mCurrentLocation.longitude)
 
-//                    currentLatLng = LatLng(mCurrentLocation.latitude,mCurrentLocation.longitude)
-
-                    currentLatLng = LatLng(51.5297, -0.0886)
+//                    currentLatLng = LatLng(51.5297, -0.0886)
 
                     val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
                     map.animateCamera(update)
