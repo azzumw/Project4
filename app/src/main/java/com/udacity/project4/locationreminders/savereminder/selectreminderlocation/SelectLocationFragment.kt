@@ -150,26 +150,28 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private fun startLocationUpdates(
-        locationRequest: LocationRequest,
-        locationCallback: LocationCallback
-    ) {
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
+
 
     @SuppressLint("MissingPermission")
     private fun enableLocation(locationRequest: LocationRequest) {
 
         Log.e(TAG, "Inside Enable Location Start")
 
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                for (location in locationResult.locations){
+                   mCurrentLocation = location
+                }
+            }
+        }
+
+
         map.isMyLocationEnabled = true
 
         val locationResult: Task<Location> = fusedLocationClient.lastLocation
+
+
 
         locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
             if (task.isSuccessful) {
@@ -190,42 +192,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 } else {
                     Log.e(TAG, " Task result is null")
                     //Need to do something here to get the real time location
+                    fusedLocationClient.requestLocationUpdates(locationRequest,locationCallback, Looper.getMainLooper())
 
-                    locationCallback = object : LocationCallback() {
-
-                        override fun onLocationResult(locationResult: LocationResult?) {
-                            locationResult ?: return
-                            for (location in locationResult.locations) {
-                                if (location != null) {
-                                    mCurrentLocation = location
-                                } else {
-                                    Log.e(TAG, "location is null")
-                                }
-                            }
+                    fusedLocationClient.lastLocation.addOnCompleteListener{
+                        if(it.isSuccessful){
+                            mCurrentLocation = it.result!!
                         }
                     }
 
-                    fusedLocationClient.requestLocationUpdates(
-                        locationRequest,
-                        locationCallback,
-                        Looper.getMainLooper()
-                    )
 
-                    val lastLocation = fusedLocationClient.lastLocation
-
-                    lastLocation.addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            Log.e(TAG, "Location is here")
-                            val task2 = it.result!!
-                            mCurrentLocation = task2
-
-                        } else {
-                            Log.e(TAG, "Location is not here")
-                        }
-                    }
-//                    fusedLocationClient.setMockLocation(mCurrentLocation)
-//
-                    currentLatLng =  LatLng(mCurrentLocation.latitude, mCurrentLocation.longitude)
+                    currentLatLng = LatLng(mCurrentLocation.latitude,mCurrentLocation.longitude)
 
 //                    currentLatLng = LatLng(51.5297, -0.0886)
 
@@ -238,17 +214,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
                 Log.e(TAG, "Unsuccessful Task result")
                 Toast.makeText(requireContext(), "ENABLE LOCATION ELSE", Toast.LENGTH_LONG).show()
-                //request location updates
+
 
             }
         })
     }
 
 
+
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
 
         val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+            priority = LocationRequest.PRIORITY_LOW_POWER
         }
 
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
@@ -289,6 +266,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
             Log.e(TAG, "SUCCESSFUL!")
             Toast.makeText(requireContext(), "TOAST", Toast.LENGTH_SHORT).show()
+
             enableLocation(locationRequest)
         }
     }
