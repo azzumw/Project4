@@ -3,13 +3,16 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 //import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 //import com.udacity.project4.utils.wrapEspressoIdlingResource
+
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Resources
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
@@ -24,7 +27,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
@@ -150,82 +156,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-
-
-    @SuppressLint("MissingPermission")
-    private fun enableLocation(locationRequest: LocationRequest) {
-
-        Log.e(TAG, "Inside Enable Location Start")
-
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                locationResult ?: return
-                for (location in locationResult.locations){
-                   mCurrentLocation = location
-                }
-            }
-        }
-
-
-        map.isMyLocationEnabled = true
-
-        val locationResult: Task<Location> = fusedLocationClient.lastLocation
-
-
-
-        locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
-            if (task.isSuccessful) {
-                Log.e(TAG, locationResult.result?.latitude.toString())
-                // Set the map's camera position to the current location of the device.
-                if (task.result != null) {
-                    mCurrentLocation = task.result!!
-                    val latLng = LatLng(
-                        mCurrentLocation.latitude,
-                        mCurrentLocation.longitude
-                    )
-                    val update = CameraUpdateFactory.newLatLngZoom(
-                        latLng,
-                        18f
-                    )
-                    Toast.makeText(requireContext(), "CAMERA MOVING", Toast.LENGTH_SHORT).show()
-                    map.animateCamera(update)
-                } else {
-                    Log.e(TAG, " Task result is null")
-                    //Need to do something here to get the real time location
-                    fusedLocationClient.requestLocationUpdates(locationRequest,locationCallback, Looper.getMainLooper())
-
-                    fusedLocationClient.lastLocation.addOnCompleteListener{
-                        if(it.isSuccessful){
-                            mCurrentLocation = it.result!!
-                        }
-                    }
-
-
-                    currentLatLng = LatLng(mCurrentLocation.latitude,mCurrentLocation.longitude)
-
-//                    currentLatLng = LatLng(51.5297, -0.0886)
-
-                    val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
-                    map.animateCamera(update)
-
-                }
-
-            } else {
-
-                Log.e(TAG, "Unsuccessful Task result")
-                Toast.makeText(requireContext(), "ENABLE LOCATION ELSE", Toast.LENGTH_LONG).show()
-
-
-            }
-        })
-    }
-
-
-
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
 
         val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_LOW_POWER
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = 10000L
         }
 
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
@@ -271,6 +206,66 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("MissingPermission")
+    private fun enableLocation(locationRequest: LocationRequest) {
+
+        Log.e(TAG, "Inside Enable Location Start")
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                Log.e(TAG, "onLocationResult")
+                locationResult ?: return
+                for (location in locationResult.locations){
+                    mCurrentLocation = location
+                }
+            }
+        }
+
+        map.isMyLocationEnabled = true
+
+
+
+        val locationResult: Task<Location> = fusedLocationClient.lastLocation
+
+        locationResult.addOnCompleteListener(OnCompleteListener<Location?> { task ->
+            if (task.isSuccessful) {
+                Log.e(TAG, locationResult.result?.latitude.toString())
+                // Set the map's camera position to the current location of the device.
+                if (task.result != null) {
+                    mCurrentLocation = task.result!!
+                    val latLng = LatLng(
+                        mCurrentLocation.latitude,
+                        mCurrentLocation.longitude
+                    )
+                    val update = CameraUpdateFactory.newLatLngZoom(
+                        latLng,
+                        18f
+                    )
+                    Toast.makeText(requireContext(), "CAMERA MOVING", Toast.LENGTH_SHORT).show()
+                    map.animateCamera(update)
+                } else {
+                    Log.e(TAG, " Task result is null")
+                    //Need to do something here to get the real time location
+                    fusedLocationClient.requestLocationUpdates(locationRequest,locationCallback, Looper.getMainLooper())
+
+
+                    currentLatLng = LatLng(mCurrentLocation.latitude,mCurrentLocation.longitude)
+
+//                    currentLatLng = LatLng(51.5297, -0.0886)
+
+                    val update = CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f)
+                    map.animateCamera(update)
+
+                }
+            } else {
+
+                Log.e(TAG, "Unsuccessful Task result")
+                Toast.makeText(requireContext(), "ENABLE LOCATION ELSE", Toast.LENGTH_LONG).show()
+
+            }
+        })
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         /*
@@ -296,7 +291,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
-            showSnackBar(getString(R.string.selection_location_message))
+//            showSnackBar(getString(R.string.selection_location_message))
         } else {
 
             Snackbar.make(
@@ -427,8 +422,4 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         isPoiSelected = false
     }
 
-    override fun onPause() {
-        super.onPause()
-
-    }
 }
