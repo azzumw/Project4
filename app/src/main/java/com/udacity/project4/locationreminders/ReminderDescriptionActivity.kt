@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -38,11 +39,14 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             R.layout.activity_reminder_description
         )
 
-        binding.reminderDataItem = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem?
+        geofencingClient = LocationServices.getGeofencingClient(this)
+
+        val data = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem?
+        binding.reminderDataItem = data
+
 
         binding.okayBtn.setOnClickListener {
-           val intent = Intent(this,RemindersActivity::class.java)
-//            val intent = Intent(this, RemindersActivity::class.java)
+            val intent = Intent(this, RemindersActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             finish()
             startActivity(intent)
@@ -50,6 +54,6 @@ class ReminderDescriptionActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-       finish()
+        finish()
     }
 }

@@ -75,6 +75,7 @@ class RemindersActivityTest :
         }
     }
 
+
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
      * at this step we will initialize Koin related code to be able to use it in out testing.
@@ -154,19 +155,19 @@ class RemindersActivityTest :
 
         dataBindingIdlingResource.monitorActivity(activity)
 
-        onView(withId(R.id.addReminderFAB)).perform(click())
+        viewWithId(R.id.addReminderFAB).perform(click())
 
-        onView(withId(R.id.selectLocation)).perform(click())
+        viewWithId(R.id.selectLocation).perform(click())
 
         SystemClock.sleep(5000)
 
 
-        onView(withId(R.id.map)).perform(longClick())
-        onView(withId(R.id.map)).perform(click())
+        viewWithId(R.id.map).perform(longClick())
+        viewWithId(R.id.map).perform(click())
 
-        onView(withId(R.id.saveBtn)).click()
+        viewWithId(R.id.saveBtn).click()
 
-        onView(withId(R.id.selectedLocation)).check(matches(withText(containsString("Dropped Pin"))))
+        viewWithId(R.id.selectedLocation).check(matches(withText(containsString("Dropped Pin"))))
 
         viewWithId(R.id.reminderTitle).type(remindertitle)
         viewWithId(R.id.reminderDescription).type(reminderDesc)
@@ -188,7 +189,6 @@ class RemindersActivityTest :
             )
         )
 
-        SystemClock.sleep(2000)
 
         viewWithId(R.id.reminderssRecyclerView).check(matches(hasDescendant(withText(remindertitle))))
 
@@ -201,14 +201,13 @@ class RemindersActivityTest :
         uiDevice.wait(Until.hasObject(By.text(remindertitle)), 2000)
         uiDevice.findObject(UiSelector().textContains(remindertitle)).clickAndWaitForNewWindow()
 
-        onView(withText(remindertitle)).check(matches(isDisplayed()))
+        viewWithText(remindertitle).check(matches(isDisplayed()))
 
     }
 
     /**
      * Test: title error is displayed with correct error text
      * */
-
     @Test
     fun e2e_correctTitleErrorDisplayed() {
 
@@ -219,11 +218,12 @@ class RemindersActivityTest :
 
         viewWithId(R.id.selectLocation).perform(click())
 
+//        uiDevice.runWatchers()
+
         SystemClock.sleep(5000)
 
         viewWithId(R.id.map).perform(longClick())
         SystemClock.sleep(2000)
-        viewWithId(R.id.map).perform(longClick())
         viewWithId(R.id.map).perform(click())
 
         viewWithId(R.id.saveBtn).click()
@@ -284,6 +284,7 @@ class RemindersActivityTest :
         activityScenarioRule.close()
     }
 
+
     @Test
     fun e2e_selectLocation_clickSaveWithoutChoosingPoi_resultToastAppears() {
         val activity = launch(RemindersActivity::class.java)
@@ -294,7 +295,7 @@ class RemindersActivityTest :
 
         onView(withId(R.id.selectLocation)).perform(click())
 
-        SystemClock.sleep(5000)
+        SystemClock.sleep(3000)
 
         onView(withId(R.id.saveBtn)).click()
 
