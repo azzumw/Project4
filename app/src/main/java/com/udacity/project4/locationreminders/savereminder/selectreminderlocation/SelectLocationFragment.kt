@@ -168,11 +168,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun checkPermissionsAndDeviceLocationSettings() {
         if (isPermissionGranted()) {
-//            if(!map.isMyLocationEnabled){
-//                map.isMyLocationEnabled = true
-//            }
-            enableLocation()
-//            checkDeviceLocationSettings()
+            checkDeviceLocationSettings()
+
         } else {
             //the response from here goes to onRequestPermissionsCheck
             requestPermissions(
@@ -186,10 +183,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
 
-        val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000L
-        }
+        enableLocation()
+
+        val locationRequest = createLocationRequest()
 
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
@@ -206,6 +202,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         exception.resolution.intentSender,
                         REQUEST_TURN_DEVICE_LOCATION_ON, null, 0, 0, 0, null
                     )
+//                    Toast.makeText(context,"Dialogue",Toast.LENGTH_SHORT).show()
 
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(
@@ -228,9 +225,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         locationSettingsResponseTask.addOnSuccessListener {
 
             Log.e(TAG, "SUCCESSFUL!")
-            enableLocation()
-            showSnackBar(getString(R.string.selection_location_message))
+
         }
+
+
+    }
+
+    private fun createLocationRequest(): LocationRequest {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = 10000L
+        }
+        return locationRequest
     }
 
 
@@ -238,8 +244,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun enableLocation() {
 
         Log.e(TAG, "Inside Enable Location Start")
-
-        map.isMyLocationEnabled = true
+        if(!map.isMyLocationEnabled){
+            map.isMyLocationEnabled = true
+        }
+        showSnackBar(getString(R.string.selection_location_message))
 
     }
 
@@ -281,6 +289,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         when (requestCode) {
             REQUEST_TURN_DEVICE_LOCATION_ON -> {
                 Log.e(TAG, "onActivityResult - REQ_DEV_LOC")
+                Toast.makeText(context,"Location RESPONSE",Toast.LENGTH_SHORT).show()
                 checkDeviceLocationSettings(false)
             }
 
