@@ -170,6 +170,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (isPermissionGranted()) {
             checkDeviceLocationSettings()
         } else {
+            //the response from here goes to onRequestPermissionsCheck
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_PERMISSION_LOCATION
@@ -178,6 +179,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
+    @SuppressLint("MissingPermission")
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
 
         val locationRequest = LocationRequest.create().apply {
@@ -209,10 +211,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             } else {
                 Snackbar.make(
                     activity!!.findViewById<CoordinatorLayout>(R.id.myCoordinatorLayout),
-                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                    R.string.location_required_error, Snackbar.LENGTH_LONG
                 ).setAction(android.R.string.ok) {
-                    checkDeviceLocationSettings()
+                    //
+
                 }.show()
+
+
+
             }
         }
 
@@ -221,6 +227,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Log.e(TAG, "SUCCESSFUL!")
             enableLocation(locationRequest)
             showSnackBar(getString(R.string.selection_location_message))
+
         }
     }
 
@@ -230,7 +237,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         Log.e(TAG, "Inside Enable Location Start")
 
-        map.isMyLocationEnabled = true
+        if(!map.isMyLocationEnabled){
+            map.isMyLocationEnabled = true
+        }
+
 
         val locationResult: Task<Location> = fusedLocationClient.lastLocation
 
@@ -242,7 +252,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     Looper.getMainLooper()
                 )
                 Log.e(TAG, "Inside location is null")
-                checkPermissionsAndDeviceLocationSettings()
+                checkDeviceLocationSettings()
                 return@addOnSuccessListener
 
             } else {
@@ -266,11 +276,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         you need super.onActivityResult() in the host activity for this to be triggered
         * */
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON || requestCode == REQUEST_PERMISSION_LOCATION) {
-            checkPermissionsAndDeviceLocationSettings()
+            checkDeviceLocationSettings(false)
         }
     }
 
 
+    @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -282,6 +293,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
+//            checkDeviceLocationSettings()
+            map.isMyLocationEnabled = true
+            checkDeviceLocationSettings()
 
         } else {
 
