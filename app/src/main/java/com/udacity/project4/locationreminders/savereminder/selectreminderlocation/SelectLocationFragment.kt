@@ -220,7 +220,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
             Log.e(TAG, "SUCCESSFUL!")
             enableLocation(locationRequest)
-            showSnackBar(getString(R.string.select_location))
+            showSnackBar(getString(R.string.selection_location_message))
         }
     }
 

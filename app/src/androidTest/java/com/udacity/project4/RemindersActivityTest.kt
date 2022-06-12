@@ -75,12 +75,6 @@ class RemindersActivityTest :
         }
     }
 
-    private fun removeLocationPermissionWatcher(){
-        uiDevice.removeWatcher("locationDialog")
-        uiDevice.removeWatcher("locationAllowAll")
-//        uiDevice.runWatchers()
-    }
-
 
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
@@ -154,8 +148,6 @@ class RemindersActivityTest :
 
     //Ensure location is set manually,
     // going to Google maps  - updating the location
-
-    //REQUIRES CHANGES
     @Test
     fun e2e_saveAReminder_completeJourney() {
 
@@ -163,24 +155,22 @@ class RemindersActivityTest :
 
         dataBindingIdlingResource.monitorActivity(activity)
 
-        onView(withId(R.id.addReminderFAB)).perform(click())
+        viewWithId(R.id.addReminderFAB).perform(click())
 
-        onView(withId(R.id.selectLocation)).perform(click())
+        viewWithId(R.id.selectLocation).perform(click())
 
         SystemClock.sleep(5000)
 
 
-        onView(withId(R.id.map)).perform(longClick())
-        onView(withId(R.id.map)).perform(click())
+        viewWithId(R.id.map).perform(longClick())
+        viewWithId(R.id.map).perform(click())
 
-        onView(withId(R.id.saveBtn)).click()
+        viewWithId(R.id.saveBtn).click()
 
-        onView(withId(R.id.selectedLocation)).check(matches(withText(containsString("Dropped Pin"))))
+        viewWithId(R.id.selectedLocation).check(matches(withText(containsString("Dropped Pin"))))
 
         viewWithId(R.id.reminderTitle).type(remindertitle)
         viewWithId(R.id.reminderDescription).type(reminderDesc)
-
-
 
         viewWithId(R.id.saveReminder).click()
 
@@ -211,15 +201,13 @@ class RemindersActivityTest :
         uiDevice.wait(Until.hasObject(By.text(remindertitle)), 2000)
         uiDevice.findObject(UiSelector().textContains(remindertitle)).clickAndWaitForNewWindow()
 
-        onView(withText(remindertitle)).check(matches(isDisplayed()))
+        viewWithText(remindertitle).check(matches(isDisplayed()))
 
     }
 
     /**
      * Test: title error is displayed with correct error text
      * */
-
-    //REQUIRES CHANGES
     @Test
     fun e2e_correctTitleErrorDisplayed() {
 
@@ -230,7 +218,7 @@ class RemindersActivityTest :
 
         viewWithId(R.id.selectLocation).perform(click())
 
-        uiDevice.runWatchers()
+//        uiDevice.runWatchers()
 
         SystemClock.sleep(5000)
 
@@ -280,7 +268,6 @@ class RemindersActivityTest :
      * Test: snackbar appears when SaveLocationFragment launches with correct text
      * */
 
-    //REQUIRES CHANGES
     @Test
     fun e2e_snackBarWithCorrectTextAppears_launch_SaveLocationFragment() {
 
@@ -298,7 +285,6 @@ class RemindersActivityTest :
     }
 
 
-    //REQUIRES CHANGES
     @Test
     fun e2e_selectLocation_clickSaveWithoutChoosingPoi_resultToastAppears() {
         val activity = launch(RemindersActivity::class.java)
@@ -309,7 +295,7 @@ class RemindersActivityTest :
 
         onView(withId(R.id.selectLocation)).perform(click())
 
-        SystemClock.sleep(5000)
+        SystemClock.sleep(3000)
 
         onView(withId(R.id.saveBtn)).click()
 
