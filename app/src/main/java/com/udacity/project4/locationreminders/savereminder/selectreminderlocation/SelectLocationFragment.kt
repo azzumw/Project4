@@ -32,12 +32,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.PointOfInterest
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
-import com.google.android.libraries.maps.model.*
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
@@ -155,8 +152,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         checkPermissionsAndDeviceLocationSettings()
 
-
-
         setMapStyle(map)
         setPoiClick(map)
         setMapLongClick(map)
@@ -182,6 +177,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
 
         val locationRequest = LocationRequest.create().apply {
@@ -203,10 +199,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         exception.resolution.intentSender,
                         REQUEST_TURN_DEVICE_LOCATION_ON, null, 0, 0, 0, null
                     )
-//                    exception.startResolutionForResult(
-//                        requireActivity(),
-//                        REQUEST_TURN_DEVICE_LOCATION_ON
-//                    )
+
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(
                         SaveReminderFragment.TAG,
@@ -226,12 +219,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         locationSettingsResponseTask.addOnSuccessListener {
 
             Log.e(TAG, "SUCCESSFUL!")
-            Toast.makeText(requireContext(), "TOAST", Toast.LENGTH_SHORT).show()
-
             enableLocation(locationRequest)
             showSnackBar(getString(R.string.select_location))
         }
     }
+
 
     @SuppressLint("MissingPermission")
     private fun enableLocation(locationRequest: LocationRequest) {
@@ -273,11 +265,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         /*
         you need super.onActivityResult() in the host activity for this to be triggered
         * */
-
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON || requestCode == REQUEST_PERMISSION_LOCATION) {
-            Toast.makeText(requireContext(), "ON ACT RES", Toast.LENGTH_SHORT).show()
             checkPermissionsAndDeviceLocationSettings()
-//            showSnackBar(getString(R.string.selection_location_message))
         }
     }
 
@@ -293,7 +282,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
-//            showSnackBar(getString(R.string.selection_location_message))
+
         } else {
 
             Snackbar.make(
@@ -308,18 +297,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
                     }
                     startActivityForResult(intent, REQUEST_PERMISSION_LOCATION)
-//                    startActivity(Intent().apply {
-//                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-//                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-//                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//                    })
+
                 }.show()
-//                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-//                    REQUEST_PERMISSION_LOCATION)
-
         }
-
-
     }
 
 
@@ -367,6 +347,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+
     private fun showSnackBar(text: String) {
         //work on the position of Snack bar
         val viewPos = binding.myCoordinatorLayout
@@ -374,6 +355,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         snackbar.show()
 
     }
+
 
     private fun setMapStyle(googleMap: GoogleMap) {
         try {
@@ -399,6 +381,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         inflater.inflate(R.menu.map_options, menu)
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.normal_map -> {
             map.mapType = GoogleMap.MAP_TYPE_NORMAL
@@ -418,6 +401,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
         else -> super.onOptionsItemSelected(item)
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
