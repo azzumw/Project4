@@ -39,7 +39,7 @@
         <!--            android:value="@string/google_maps_key"-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCBvctbX2nMwVzQQiRVjm6Khf-somWJoKs" />
+            android:value="{myMapApiKey}" />
 
         <activity android:name=".authentication.AuthenticationActivity"
            >
