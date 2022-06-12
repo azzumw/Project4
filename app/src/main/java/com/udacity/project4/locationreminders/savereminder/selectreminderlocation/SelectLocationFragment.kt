@@ -168,7 +168,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun checkPermissionsAndDeviceLocationSettings() {
         if (isPermissionGranted()) {
-            checkDeviceLocationSettings()
+//            if(!map.isMyLocationEnabled){
+//                map.isMyLocationEnabled = true
+//            }
+            enableLocation()
+//            checkDeviceLocationSettings()
         } else {
             //the response from here goes to onRequestPermissionsCheck
             requestPermissions(
@@ -194,6 +198,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val locationSettingsResponseTask =
             settingsClient.checkLocationSettings(builder.build())
 
+        //Response from here goes to onActivityResult
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
                 try {
@@ -214,35 +219,32 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     R.string.location_required_error, Snackbar.LENGTH_LONG
                 ).setAction(android.R.string.ok) {
                     //
+                    Log.e(TAG, "I am here")
 
                 }.show()
-
             }
         }
 
         locationSettingsResponseTask.addOnSuccessListener {
 
             Log.e(TAG, "SUCCESSFUL!")
-            enableLocation(locationRequest)
+            enableLocation()
             showSnackBar(getString(R.string.selection_location_message))
-        }
-
-        if(!map.isMyLocationEnabled){
-            map.isMyLocationEnabled = true
         }
     }
 
 
     @SuppressLint("MissingPermission")
-    private fun enableLocation(locationRequest: LocationRequest) {
+    private fun enableLocation() {
 
         Log.e(TAG, "Inside Enable Location Start")
 
-        if(!map.isMyLocationEnabled){
-            map.isMyLocationEnabled = true
-        }
+        map.isMyLocationEnabled = true
 
+    }
 
+    @SuppressLint("MissingPermission")
+    private fun getLiveFusedLocation(locationRequest:LocationRequest) {
         val locationResult: Task<Location> = fusedLocationClient.lastLocation
 
         locationResult.addOnSuccessListener { location ->
@@ -254,7 +256,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 )
                 Log.e(TAG, "Inside location is null")
                 checkDeviceLocationSettings()
-//                return@addOnSuccessListener
+//               return@addOnSuccessListener
 
             } else {
                 mCurrentLocation = location
@@ -268,7 +270,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 map.animateCamera(update)
             }
         }
-
     }
 
 
@@ -276,9 +277,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         /*
         you need super.onActivityResult() in the host activity for this to be triggered
         * */
-        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON || requestCode == REQUEST_PERMISSION_LOCATION) {
-            checkDeviceLocationSettings(false)
+
+        when (requestCode) {
+            REQUEST_TURN_DEVICE_LOCATION_ON -> {
+                Log.e(TAG, "onActivityResult - REQ_DEV_LOC")
+                checkDeviceLocationSettings(false)
+            }
+
+            REQUEST_PERMISSION_LOCATION -> {
+                checkPermissionsAndDeviceLocationSettings()
+                Log.e(TAG, "onActivityResult - REQ_PERM")
+            }
         }
+
     }
 
 
@@ -288,15 +299,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Check if location permissions are granted and if so enable the
         // location data layer.
 
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
 //            checkDeviceLocationSettings()
-            map.isMyLocationEnabled = true
-            checkDeviceLocationSettings()
+            enableLocation()
+//            checkDeviceLocationSettings()
 
         } else {
 
