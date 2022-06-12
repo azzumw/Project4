@@ -217,8 +217,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
                 }.show()
 
-
-
             }
         }
 
@@ -227,7 +225,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Log.e(TAG, "SUCCESSFUL!")
             enableLocation(locationRequest)
             showSnackBar(getString(R.string.selection_location_message))
+        }
 
+        if(!map.isMyLocationEnabled){
+            map.isMyLocationEnabled = true
         }
     }
 
@@ -253,7 +254,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 )
                 Log.e(TAG, "Inside location is null")
                 checkDeviceLocationSettings()
-                return@addOnSuccessListener
+//                return@addOnSuccessListener
 
             } else {
                 mCurrentLocation = location
