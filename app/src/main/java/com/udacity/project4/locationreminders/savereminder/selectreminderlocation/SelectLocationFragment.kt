@@ -168,8 +168,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun checkPermissionsAndDeviceLocationSettings() {
         if (isPermissionGranted()) {
-            enableLocation()
-//            checkDeviceLocationSettings()
+//            enableLocation()
+            checkDeviceLocationSettings()
 
         } else {
             //the response from here goes to onRequestPermissionsCheck
@@ -290,7 +290,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             REQUEST_TURN_DEVICE_LOCATION_ON -> {
                 Log.e(TAG, "onActivityResult - REQ_DEV_LOC")
                 Toast.makeText(context, "Location RESPONSE", Toast.LENGTH_SHORT).show()
-//                checkDeviceLocationSettings(false)
+                checkDeviceLocationSettings(false)
             }
 
             REQUEST_PERMISSION_LOCATION -> {
@@ -314,9 +314,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
-//            checkDeviceLocationSettings()
-//            enableLocation()
-//            checkDeviceLocationSettings()
+
 
         } else {
 
