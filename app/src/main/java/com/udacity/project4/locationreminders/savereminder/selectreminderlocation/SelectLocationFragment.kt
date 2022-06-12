@@ -168,7 +168,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun checkPermissionsAndDeviceLocationSettings() {
         if (isPermissionGranted()) {
-            checkDeviceLocationSettings()
+            enableLocation()
+//            checkDeviceLocationSettings()
 
         } else {
             //the response from here goes to onRequestPermissionsCheck
@@ -224,11 +225,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         locationSettingsResponseTask.addOnSuccessListener {
 
+//            getLiveFusedLocation(locationRequest)
             Log.e(TAG, "SUCCESSFUL!")
 
         }
-
-
     }
 
     private fun createLocationRequest(): LocationRequest {
@@ -244,7 +244,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun enableLocation() {
 
         Log.e(TAG, "Inside Enable Location Start")
-        if(!map.isMyLocationEnabled){
+        if (!map.isMyLocationEnabled) {
             map.isMyLocationEnabled = true
         }
         showSnackBar(getString(R.string.selection_location_message))
@@ -252,7 +252,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
-    private fun getLiveFusedLocation(locationRequest:LocationRequest) {
+    private fun getLiveFusedLocation(locationRequest: LocationRequest) {
         val locationResult: Task<Location> = fusedLocationClient.lastLocation
 
         locationResult.addOnSuccessListener { location ->
@@ -289,8 +289,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         when (requestCode) {
             REQUEST_TURN_DEVICE_LOCATION_ON -> {
                 Log.e(TAG, "onActivityResult - REQ_DEV_LOC")
-                Toast.makeText(context,"Location RESPONSE",Toast.LENGTH_SHORT).show()
-                checkDeviceLocationSettings(false)
+                Toast.makeText(context, "Location RESPONSE", Toast.LENGTH_SHORT).show()
+//                checkDeviceLocationSettings(false)
             }
 
             REQUEST_PERMISSION_LOCATION -> {
@@ -315,7 +315,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
 //            checkDeviceLocationSettings()
-            enableLocation()
+//            enableLocation()
 //            checkDeviceLocationSettings()
 
         } else {
