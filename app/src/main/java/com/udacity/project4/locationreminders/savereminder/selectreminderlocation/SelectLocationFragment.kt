@@ -103,7 +103,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -152,6 +151,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         checkPermissionsAndDeviceLocationSettings()
 
+        CameraUpdateFactory.zoomTo(18f)
+
         setMapStyle(map)
         setPoiClick(map)
         setMapLongClick(map)
@@ -168,8 +169,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun checkPermissionsAndDeviceLocationSettings() {
         if (isPermissionGranted()) {
+//            enableLocation()
             checkDeviceLocationSettings()
+
         } else {
+            //the response from here goes to onRequestPermissionsCheck
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_PERMISSION_LOCATION
@@ -178,12 +182,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
+    @SuppressLint("MissingPermission")
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
 
-        val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000L
-        }
+        enableLocation()
+
+        val locationRequest = createLocationRequest()
 
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
@@ -192,6 +196,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val locationSettingsResponseTask =
             settingsClient.checkLocationSettings(builder.build())
 
+        //Response from here goes to onActivityResult
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
                 try {
@@ -209,29 +214,45 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             } else {
                 Snackbar.make(
                     activity!!.findViewById<CoordinatorLayout>(R.id.myCoordinatorLayout),
-                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                    R.string.location_required_error, Snackbar.LENGTH_LONG
                 ).setAction(android.R.string.ok) {
-                    checkDeviceLocationSettings()
+                    //
+                    Log.e(TAG, "I am here")
+
                 }.show()
             }
         }
 
         locationSettingsResponseTask.addOnSuccessListener {
-
+//            getLiveFusedLocation(locationRequest)
             Log.e(TAG, "SUCCESSFUL!")
-            enableLocation(locationRequest)
-            showSnackBar(getString(R.string.selection_location_message))
+
         }
+    }
+
+    private fun createLocationRequest(): LocationRequest {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = 10000L
+        }
+        return locationRequest
     }
 
 
     @SuppressLint("MissingPermission")
-    private fun enableLocation(locationRequest: LocationRequest) {
+    private fun enableLocation() {
 
         Log.e(TAG, "Inside Enable Location Start")
+        if (!map.isMyLocationEnabled) {
+            map.isMyLocationEnabled = true
 
-        map.isMyLocationEnabled = true
+        }
+        showSnackBar(getString(R.string.selection_location_message))
 
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLiveFusedLocation(locationRequest: LocationRequest) {
         val locationResult: Task<Location> = fusedLocationClient.lastLocation
 
         locationResult.addOnSuccessListener { location ->
@@ -242,8 +263,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     Looper.getMainLooper()
                 )
                 Log.e(TAG, "Inside location is null")
-                checkPermissionsAndDeviceLocationSettings()
-                return@addOnSuccessListener
+                checkDeviceLocationSettings()
+//               return@addOnSuccessListener
 
             } else {
                 mCurrentLocation = location
@@ -257,7 +278,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 map.animateCamera(update)
             }
         }
-
     }
 
 
@@ -265,24 +285,34 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         /*
         you need super.onActivityResult() in the host activity for this to be triggered
         * */
-        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON || requestCode == REQUEST_PERMISSION_LOCATION) {
-            checkPermissionsAndDeviceLocationSettings()
+
+        when (requestCode) {
+            REQUEST_TURN_DEVICE_LOCATION_ON -> {
+                Log.e(TAG, "onActivityResult - REQ_DEV_LOC")
+//                Toast.makeText(context, "Location RESPONSE", Toast.LENGTH_SHORT).show()
+                checkDeviceLocationSettings(false)
+            }
+
+            REQUEST_PERMISSION_LOCATION -> {
+                checkPermissionsAndDeviceLocationSettings()
+                Log.e(TAG, "onActivityResult - REQ_PERM")
+            }
         }
     }
 
 
+    @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Check if location permissions are granted and if so enable the
         // location data layer.
 
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
-
         } else {
 
             Snackbar.make(
