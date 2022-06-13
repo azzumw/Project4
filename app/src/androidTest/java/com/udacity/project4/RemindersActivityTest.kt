@@ -140,6 +140,29 @@ class RemindersActivityTest :
         return activity
     }
 
+    @Test
+    fun check_enable_location() {
+        val activity = launch(RemindersActivity::class.java)
+
+        dataBindingIdlingResource.monitorActivity(activity)
+
+        viewWithId(R.id.addReminderFAB).perform(click())
+
+        viewWithId(R.id.selectLocation).perform(click())
+
+        SystemClock.sleep(5000)
+
+        uiDevice.findObject(UiSelector().descriptionContains("My Location")).click()
+
+        SystemClock.sleep(3000)
+
+        viewWithId(R.id.map).perform(longClick())
+        viewWithId(R.id.map).perform(click())
+
+        viewWithId(R.id.saveBtn).click()
+
+
+    }
 
     /*This test will fail on API Level 30+
     * This is a known issue:
@@ -161,6 +184,9 @@ class RemindersActivityTest :
 
         SystemClock.sleep(5000)
 
+        uiDevice.findObject(UiSelector().descriptionContains("My Location")).click()
+
+        SystemClock.sleep(3000)
 
         viewWithId(R.id.map).perform(longClick())
         viewWithId(R.id.map).perform(click())
@@ -218,9 +244,11 @@ class RemindersActivityTest :
 
         viewWithId(R.id.selectLocation).perform(click())
 
-//        uiDevice.runWatchers()
-
         SystemClock.sleep(5000)
+
+        uiDevice.findObject(UiSelector().descriptionContains("My Location")).click()
+
+        SystemClock.sleep(3000)
 
         viewWithId(R.id.map).perform(longClick())
         SystemClock.sleep(2000)
