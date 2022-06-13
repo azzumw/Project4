@@ -204,7 +204,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                         exception.resolution.intentSender,
                         REQUEST_TURN_DEVICE_LOCATION_ON, null, 0, 0, 0, null
                     )
-//                    Toast.makeText(context,"Dialogue",Toast.LENGTH_SHORT).show()
 
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(
@@ -225,7 +224,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
 
         locationSettingsResponseTask.addOnSuccessListener {
-
 //            getLiveFusedLocation(locationRequest)
             Log.e(TAG, "SUCCESSFUL!")
 
@@ -300,7 +298,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Log.e(TAG, "onActivityResult - REQ_PERM")
             }
         }
-
     }
 
 
