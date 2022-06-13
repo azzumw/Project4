@@ -103,7 +103,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -151,6 +150,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map = gMap
 
         checkPermissionsAndDeviceLocationSettings()
+
+        CameraUpdateFactory.zoomTo(18f)
 
         setMapStyle(map)
         setPoiClick(map)
@@ -246,6 +247,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         Log.e(TAG, "Inside Enable Location Start")
         if (!map.isMyLocationEnabled) {
             map.isMyLocationEnabled = true
+
         }
         showSnackBar(getString(R.string.selection_location_message))
 
@@ -289,7 +291,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         when (requestCode) {
             REQUEST_TURN_DEVICE_LOCATION_ON -> {
                 Log.e(TAG, "onActivityResult - REQ_DEV_LOC")
-                Toast.makeText(context, "Location RESPONSE", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "Location RESPONSE", Toast.LENGTH_SHORT).show()
                 checkDeviceLocationSettings(false)
             }
 
@@ -314,8 +316,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         if (grantResults.isNotEmpty() && (grantResults[0] == PERMISSION_GRANTED)) {
             checkPermissionsAndDeviceLocationSettings()
-
-
         } else {
 
             Snackbar.make(
