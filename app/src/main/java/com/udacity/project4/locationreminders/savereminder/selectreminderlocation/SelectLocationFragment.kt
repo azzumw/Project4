@@ -185,7 +185,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun checkDeviceLocationSettings(resolve: Boolean = true) {
 
-        enableLocation()
+        enableLocationLayer()
 
         val locationRequest = createLocationRequest()
 
@@ -240,7 +240,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
     @SuppressLint("MissingPermission")
-    private fun enableLocation() {
+    private fun enableLocationLayer() {
 
         Log.e(TAG, "Inside Enable Location Start")
         if (!map.isMyLocationEnabled) {
