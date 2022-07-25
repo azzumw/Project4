@@ -2,10 +2,9 @@
 <h5>Note: This project constitutes Udacity's Android Kotlin Developer Nano-degree Program</h5>
 
 <h3>Description</h3>
+Don’t you just hate it when you’ve walked past the local grocery store, and forgot to grab the milk? Not anymore!
 
-Do you recall the moment you walked past a local grocery store, and forgot to grab the milk? Not anymore! 
-
-Location Reminder App aims to address exactly that - where user can select a point-of-interest(POI) on the map, and set for themselves a to-do reminder. When the user enters the [geofence](https://developer.android.com/training/location/geofencing) (set to: 100 meters) of the POI, the app triggers a notification. 
+Location Reminder App (LRA) will make forgetting the milk (and anything else) a thing of the past! LRA allows you  to select a point-of-interest(POI) on the map, and set for yourself a to-do reminder. With LRA in your pocket, now when you’re within a 100 metres (default geofence app setting of 100 meters) of the POI (or the grocery shop) you’ll get a notification reminding you to grab that milk - you’ll never have to endure a black coffee or dry cereal ever again.
 
 <h3>Topics/Skills covered as part of this project</h3>
 The aim of this project is to showcase the following skills:
