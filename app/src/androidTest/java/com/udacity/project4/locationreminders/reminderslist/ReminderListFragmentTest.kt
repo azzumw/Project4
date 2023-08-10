@@ -15,6 +15,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.runner.AndroidJUnit4
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -59,6 +60,8 @@ class ReminderListFragmentTest : KoinTest {
 
     @Before
     fun init() {
+
+
         //stop the original app koin
         stopKoin()
         appContext = ApplicationProvider.getApplicationContext()
